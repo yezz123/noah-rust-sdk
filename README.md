@@ -1,6 +1,6 @@
 # Noah SDK
 
-![Noah SDK](./docs/images/logo.png)
+![Noah SDK](https://github.com/yezz123/noah-rust-sdk/blob/main/docs/images/logo.png?raw=true)
 
 A modern, type-safe Rust SDK for the [Noah Business API](https://noah.com).
 
