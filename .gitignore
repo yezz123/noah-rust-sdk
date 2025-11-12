@@ -1,0 +1,17 @@
+/target
+/data
+.idea
+.env
+.env.*
+/bin/*
+/tmp/*
+.DS_Store
+rustc-ice-*.txt
+
+# to keep the bin folder
+!/bin/.gitkeep
+!/tmp/.gitkeep
+
+# playground
+/playground/node_modules
+/playground/dist

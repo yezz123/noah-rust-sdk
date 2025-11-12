@@ -1,0 +1,29 @@
+version: 2
+
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions-packages:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: ⬆
+    labels:
+      - "upgrade"
+  # Python
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      cargo-packages:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: ⬆
+    labels:
+      - "upgrade"

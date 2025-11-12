@@ -1,0 +1,33 @@
+fail_fast: true
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+        exclude: "helm/templates/.*"
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+
+  - repo: local
+    hooks:
+      - id: lint-rust
+        name: Lint Rust
+        entry: make format
+        types: [rust]
+        language: system
+        pass_filenames: false
+      - id: prettier-check
+        name: Check Prettier formatting
+        entry: npx prettier --check .
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: taplo-check
+        name: Check Taplo TOML formatting
+        entry: npx @taplo/cli fmt --config ./taplo/taplo.toml --check
+        language: system
+        pass_filenames: false
+        always_run: true
