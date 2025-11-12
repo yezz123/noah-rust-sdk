@@ -1,5 +1,7 @@
 ## Changelog
 
+## 1.0.1
+
 ### Features
 
 * feat: Configure the sdk to have a clean documentation. PR [#3](https://github.com/yezz123/noah-rust-sdk/pull/3) by [@yezz123](https://github.com/yezz123).
