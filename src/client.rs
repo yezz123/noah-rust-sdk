@@ -1,4 +1,47 @@
 //! Main HTTP client for the Noah SDK
+//!
+//! This module provides the core HTTP client for making requests to the Noah API.
+//! The client supports both async and blocking (synchronous) operations.
+//!
+//! # Features
+//!
+//! - **Async Support**: Use `async`/`await` for non-blocking operations
+//! - **Blocking Support**: Use synchronous methods for simpler code
+//! - **Automatic Authentication**: Handles JWT signing and API key authentication
+//! - **Error Handling**: Comprehensive error types with detailed context
+//!
+//! # Examples
+//!
+//! ## Async Client
+//!
+//! ```no_run
+//! use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+//!
+//! # #[cfg(feature = "async")]
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! let config = Config::new(Environment::Sandbox);
+//! let auth = AuthConfig::with_api_key("your-api-key".to_string());
+//! let client = NoahClient::new(config, auth)?;
+//!
+//! // Use async methods
+//! let balances = client.get_balances(None, None).await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ## Blocking Client
+//!
+//! ```no_run
+//! use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+//!
+//! # #[cfg(feature = "sync")]
+//! let config = Config::new(Environment::Sandbox);
+//! let auth = AuthConfig::with_api_key("your-api-key".to_string());
+//! let client = NoahClient::new(config, auth)?;
+//!
+//! // Use blocking methods
+//! let balances = client.get_balances_blocking(None, None)?;
+//! ```
 
 use crate::auth::AuthConfig;
 use crate::config::Config;
@@ -8,6 +51,27 @@ use serde::de::DeserializeOwned;
 use url::Url;
 
 /// Main client for interacting with the Noah API
+///
+/// This client provides methods to interact with all Noah API endpoints.
+/// It handles authentication, request building, and response parsing automatically.
+///
+/// # Thread Safety
+///
+/// The client is `Clone` and can be shared across threads safely.
+///
+/// # Examples
+///
+/// ```no_run
+/// use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+///
+/// # #[cfg(feature = "async")]
+/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// let config = Config::new(Environment::Sandbox);
+/// let auth = AuthConfig::with_api_key("your-api-key".to_string());
+/// let client = NoahClient::new(config, auth)?;
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Clone)]
 pub struct NoahClient {
     config: Config,
@@ -20,6 +84,48 @@ pub struct NoahClient {
 
 impl NoahClient {
     /// Create a new client with the given configuration
+    ///
+    /// # Arguments
+    ///
+    /// * `config` - Client configuration (environment, timeout, etc.)
+    /// * `auth_config` - Authentication configuration (API key or JWT secret)
+    ///
+    /// # Returns
+    ///
+    /// Returns a new `NoahClient` instance ready to make API requests.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if:
+    /// - The HTTP client cannot be created
+    /// - The user agent string is invalid
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+    ///
+    /// # #[cfg(feature = "async")]
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// // Using API key authentication
+    /// let config = Config::new(Environment::Sandbox);
+    /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
+    /// let client = NoahClient::new(config, auth)?;
+    ///
+    /// // Using JWT signing
+    /// let config = Config::new(Environment::Production);
+    /// let auth = AuthConfig::with_secret_key("your-secret-key".to_string());
+    /// let client = NoahClient::new(config, auth)?;
+    ///
+    /// // Using both
+    /// let auth = AuthConfig::with_both(
+    ///     "your-api-key".to_string(),
+    ///     "your-secret-key".to_string()
+    /// );
+    /// let client = NoahClient::new(config, auth)?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(config: Config, auth_config: AuthConfig) -> Result<Self> {
         #[cfg(feature = "async")]
         let client = {
@@ -71,7 +177,26 @@ impl NoahClient {
         })
     }
 
-    /// Get the base URL
+    /// Get the base URL for API requests
+    ///
+    /// Returns the base URL that all API requests will be made against.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+    ///
+    /// # #[cfg(feature = "async")]
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let config = Config::new(Environment::Sandbox);
+    /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
+    /// let client = NoahClient::new(config, auth)?;
+    ///
+    /// let base_url = client.base_url();
+    /// println!("API base URL: {}", base_url);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn base_url(&self) -> &Url {
         &self.config.base_url
     }

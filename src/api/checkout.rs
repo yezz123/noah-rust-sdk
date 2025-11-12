@@ -1,4 +1,39 @@
 //! Checkout API
+//!
+//! This module provides functionality to create checkout sessions for payments.
+//! Supports crypto payin, fiat payin, and fiat payout operations.
+//!
+//! # Examples
+//!
+//! ## Create Crypto Payin Session
+//!
+//! ```no_run
+//! use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+//! use noah_sdk::api::checkout::CryptoPayinRequest;
+//! use noah_sdk::models::common::*;
+//!
+//! # #[cfg(feature = "async")]
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! let config = Config::new(Environment::Sandbox);
+//! let auth = AuthConfig::with_api_key("your-api-key".to_string());
+//! let client = NoahClient::new(config, auth)?;
+//!
+//! let request = CryptoPayinRequest {
+//!     crypto_currency: CryptoCurrencyCode::from("BTC"),
+//!     crypto_amount: PositiveDecimal::from("0.001"),
+//!     return_url: ReturnURL::from("https://example.com/return"),
+//!     customer_id: CustomerID::from("customer-123"),
+//!     external_id: None,
+//!     customer: None,
+//!     line_items: Default::default(),
+//!     nonce: Nonce::from("unique-nonce"),
+//! };
+//!
+//! let session = client.create_crypto_payin_session(&request).await?;
+//! println!("Checkout URL: {}", session.checkout_url);
+//! # Ok(())
+//! # }
+//! ```
 
 use crate::client::NoahClient;
 use crate::error::Result;
@@ -6,7 +41,28 @@ use crate::models::checkout::CheckoutSessionResponse;
 use crate::models::common::*;
 use serde::Serialize;
 
-/// Crypto payin request
+/// Request to create a cryptocurrency payin checkout session
+///
+/// This request is used to create a checkout session where customers can pay
+/// using cryptocurrency (e.g., Bitcoin, Ethereum).
+///
+/// # Examples
+///
+/// ```no_run
+/// use noah_sdk::api::checkout::CryptoPayinRequest;
+/// use noah_sdk::models::common::*;
+///
+/// let request = CryptoPayinRequest {
+///     crypto_currency: CryptoCurrencyCode::from("BTC"),
+///     crypto_amount: PositiveDecimal::from("0.001"),
+///     return_url: ReturnURL::from("https://example.com/return"),
+///     customer_id: CustomerID::from("customer-123"),
+///     external_id: Some(ExternalID::from("order-456")),
+///     customer: None,
+///     line_items: Default::default(),
+///     nonce: Nonce::from("unique-nonce-123"),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize)]
 pub struct CryptoPayinRequest {
     /// Cryptocurrency
@@ -37,7 +93,30 @@ pub struct CryptoPayinRequest {
     pub nonce: Nonce,
 }
 
-/// Fiat payin request
+/// Request to create a fiat currency payin checkout session
+///
+/// This request is used to create a checkout session where customers can pay
+/// using fiat currency (e.g., USD, EUR) via various payment methods.
+///
+/// # Examples
+///
+/// ```no_run
+/// use noah_sdk::api::checkout::FiatPayinRequest;
+/// use noah_sdk::models::common::*;
+///
+/// let request = FiatPayinRequest {
+///     payment_method_category: PaymentMethodCategory::Card,
+///     fiat_currency: FiatCurrencyCode::from("USD"),
+///     crypto_currency: CryptoCurrencyCode::from("BTC"),
+///     fiat_amount: PositiveDecimal::from("100.00"),
+///     return_url: ReturnURL::from("https://example.com/return"),
+///     customer_id: CustomerID::from("customer-123"),
+///     external_id: None,
+///     customer: None,
+///     line_items: Default::default(),
+///     nonce: Nonce::from("unique-nonce"),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize)]
 pub struct FiatPayinRequest {
     /// Payment method category
@@ -74,7 +153,30 @@ pub struct FiatPayinRequest {
     pub nonce: Nonce,
 }
 
-/// Fiat payout request
+/// Request to create a fiat currency payout checkout session
+///
+/// This request is used to create a checkout session where customers can sell
+/// cryptocurrency and receive fiat currency.
+///
+/// # Examples
+///
+/// ```no_run
+/// use noah_sdk::api::checkout::FiatPayoutRequest;
+/// use noah_sdk::models::common::*;
+///
+/// let request = FiatPayoutRequest {
+///     crypto_currency: CryptoCurrencyCode::from("BTC"),
+///     fiat_currency: FiatCurrencyCode::from("USD"),
+///     fiat_amount: PositiveDecimal::from("1000.00"),
+///     crypto_authorized_amount: PositiveDecimal::from("0.025"),
+///     return_url: ReturnURL::from("https://example.com/return"),
+///     customer_id: CustomerID::from("customer-123"),
+///     external_id: None,
+///     customer: None,
+///     line_items: Default::default(),
+///     nonce: Nonce::from("unique-nonce"),
+/// };
+/// ```
 #[derive(Debug, Clone, Serialize)]
 pub struct FiatPayoutRequest {
     /// Cryptocurrency
@@ -112,7 +214,55 @@ pub struct FiatPayoutRequest {
 }
 
 impl NoahClient {
-    /// Create crypto payin session (async)
+    /// Create a cryptocurrency payin checkout session
+    ///
+    /// Creates a checkout session that allows customers to pay using cryptocurrency.
+    /// Returns a session with a checkout URL that the customer can be redirected to.
+    ///
+    /// # Arguments
+    ///
+    /// * `request` - The crypto payin request containing payment details
+    ///
+    /// # Returns
+    ///
+    /// Returns a [`CheckoutSessionResponse`] containing the checkout URL and session details.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if:
+    /// - The request data is invalid
+    /// - The API request fails
+    /// - Authentication fails
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+    /// use noah_sdk::api::checkout::CryptoPayinRequest;
+    /// use noah_sdk::models::common::*;
+    ///
+    /// # #[cfg(feature = "async")]
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let config = Config::new(Environment::Sandbox);
+    /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
+    /// let client = NoahClient::new(config, auth)?;
+    ///
+    /// let request = CryptoPayinRequest {
+    ///     crypto_currency: CryptoCurrencyCode::from("BTC"),
+    ///     crypto_amount: PositiveDecimal::from("0.001"),
+    ///     return_url: ReturnURL::from("https://example.com/return"),
+    ///     customer_id: CustomerID::from("customer-123"),
+    ///     external_id: None,
+    ///     customer: None,
+    ///     line_items: Default::default(),
+    ///     nonce: Nonce::from("unique-nonce"),
+    /// };
+    ///
+    /// let session = client.create_crypto_payin_session(&request).await?;
+    /// println!("Redirect customer to: {}", session.checkout_url);
+    /// # Ok(())
+    /// # }
+    /// ```
     #[cfg(feature = "async")]
     pub async fn create_crypto_payin_session(
         &self,
@@ -121,7 +271,10 @@ impl NoahClient {
         self.post("/checkout/payin/crypto", request).await
     }
 
-    /// Create crypto payin session (blocking)
+    /// Create a cryptocurrency payin checkout session (blocking)
+    ///
+    /// Synchronous version of [`create_crypto_payin_session`](Self::create_crypto_payin_session).
+    /// See that method for detailed documentation.
     #[cfg(feature = "sync")]
     pub fn create_crypto_payin_session_blocking(
         &self,
@@ -130,7 +283,49 @@ impl NoahClient {
         self.post_blocking("/checkout/payin/crypto", request)
     }
 
-    /// Create fiat payin session (async)
+    /// Create a fiat currency payin checkout session
+    ///
+    /// Creates a checkout session that allows customers to pay using fiat currency
+    /// via various payment methods (e.g., credit card, bank transfer).
+    ///
+    /// # Arguments
+    ///
+    /// * `request` - The fiat payin request containing payment details
+    ///
+    /// # Returns
+    ///
+    /// Returns a [`CheckoutSessionResponse`] containing the checkout URL and session details.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+    /// use noah_sdk::api::checkout::FiatPayinRequest;
+    /// use noah_sdk::models::common::*;
+    ///
+    /// # #[cfg(feature = "async")]
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let config = Config::new(Environment::Sandbox);
+    /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
+    /// let client = NoahClient::new(config, auth)?;
+    ///
+    /// let request = FiatPayinRequest {
+    ///     payment_method_category: PaymentMethodCategory::Card,
+    ///     fiat_currency: FiatCurrencyCode::from("USD"),
+    ///     crypto_currency: CryptoCurrencyCode::from("BTC"),
+    ///     fiat_amount: PositiveDecimal::from("100.00"),
+    ///     return_url: ReturnURL::from("https://example.com/return"),
+    ///     customer_id: CustomerID::from("customer-123"),
+    ///     external_id: None,
+    ///     customer: None,
+    ///     line_items: Default::default(),
+    ///     nonce: Nonce::from("unique-nonce"),
+    /// };
+    ///
+    /// let session = client.create_fiat_payin_session(&request).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     #[cfg(feature = "async")]
     pub async fn create_fiat_payin_session(
         &self,
@@ -139,7 +334,10 @@ impl NoahClient {
         self.post("/checkout/payin/fiat", request).await
     }
 
-    /// Create fiat payin session (blocking)
+    /// Create a fiat currency payin checkout session (blocking)
+    ///
+    /// Synchronous version of [`create_fiat_payin_session`](Self::create_fiat_payin_session).
+    /// See that method for detailed documentation.
     #[cfg(feature = "sync")]
     pub fn create_fiat_payin_session_blocking(
         &self,
@@ -148,7 +346,49 @@ impl NoahClient {
         self.post_blocking("/checkout/payin/fiat", request)
     }
 
-    /// Create fiat payout session (async)
+    /// Create a fiat currency payout checkout session
+    ///
+    /// Creates a checkout session that allows customers to sell cryptocurrency
+    /// and receive fiat currency in return.
+    ///
+    /// # Arguments
+    ///
+    /// * `request` - The fiat payout request containing sale details
+    ///
+    /// # Returns
+    ///
+    /// Returns a [`CheckoutSessionResponse`] containing the checkout URL and session details.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+    /// use noah_sdk::api::checkout::FiatPayoutRequest;
+    /// use noah_sdk::models::common::*;
+    ///
+    /// # #[cfg(feature = "async")]
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let config = Config::new(Environment::Sandbox);
+    /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
+    /// let client = NoahClient::new(config, auth)?;
+    ///
+    /// let request = FiatPayoutRequest {
+    ///     crypto_currency: CryptoCurrencyCode::from("BTC"),
+    ///     fiat_currency: FiatCurrencyCode::from("USD"),
+    ///     fiat_amount: PositiveDecimal::from("1000.00"),
+    ///     crypto_authorized_amount: PositiveDecimal::from("0.025"),
+    ///     return_url: ReturnURL::from("https://example.com/return"),
+    ///     customer_id: CustomerID::from("customer-123"),
+    ///     external_id: None,
+    ///     customer: None,
+    ///     line_items: Default::default(),
+    ///     nonce: Nonce::from("unique-nonce"),
+    /// };
+    ///
+    /// let session = client.create_fiat_payout_session(&request).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     #[cfg(feature = "async")]
     pub async fn create_fiat_payout_session(
         &self,
@@ -157,7 +397,10 @@ impl NoahClient {
         self.post("/checkout/payout/fiat", request).await
     }
 
-    /// Create fiat payout session (blocking)
+    /// Create a fiat currency payout checkout session (blocking)
+    ///
+    /// Synchronous version of [`create_fiat_payout_session`](Self::create_fiat_payout_session).
+    /// See that method for detailed documentation.
     #[cfg(feature = "sync")]
     pub fn create_fiat_payout_session_blocking(
         &self,
