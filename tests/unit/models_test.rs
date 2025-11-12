@@ -36,4 +36,3 @@ mod tests {
         assert!(json.contains("Ethereum"));
     }
 }
-
