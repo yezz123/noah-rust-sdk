@@ -46,4 +46,3 @@ pub use error::{NoahError, Result};
 pub use api::{
     balances, channels, checkout, customers, onboarding, payment_methods, transactions, workflows,
 };
-

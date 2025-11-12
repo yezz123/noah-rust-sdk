@@ -12,7 +12,7 @@ pub enum NoahError {
 
     /// API error responses from the server
     #[error("API error: {0}")]
-    ApiError(#[from] ApiErrorResponse),
+    ApiError(Box<ApiErrorResponse>),
 
     /// Authentication errors
     #[error("Authentication error: {0}")]
@@ -154,7 +154,7 @@ impl fmt::Display for ApiErrorResponse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.error_type)?;
         if let Some(ref detail) = self.detail {
-            write!(f, ": {}", detail)?;
+            write!(f, ": {detail}")?;
         }
         Ok(())
     }
@@ -175,6 +175,11 @@ impl fmt::Display for ErrorType {
 
 impl std::error::Error for ApiErrorResponse {}
 
+impl From<ApiErrorResponse> for NoahError {
+    fn from(err: ApiErrorResponse) -> Self {
+        NoahError::ApiError(Box::new(err))
+    }
+}
+
 /// Result type alias for Noah SDK operations
 pub type Result<T> = std::result::Result<T, NoahError>;
-

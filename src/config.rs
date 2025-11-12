@@ -3,9 +3,10 @@
 use url::Url;
 
 /// Environment configuration
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub enum Environment {
     /// Sandbox environment
+    #[default]
     Sandbox,
     /// Production environment
     Production,
@@ -25,12 +26,6 @@ impl Environment {
             }
             Environment::Custom(url) => url.clone(),
         }
-    }
-}
-
-impl Default for Environment {
-    fn default() -> Self {
-        Environment::Sandbox
     }
 }
 
@@ -82,4 +77,3 @@ impl Default for Config {
         Self::new(Environment::default())
     }
 }
-

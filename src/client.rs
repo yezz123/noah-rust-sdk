@@ -29,7 +29,7 @@ impl NoahClient {
             headers.insert(
                 "User-Agent",
                 HeaderValue::from_str(&config.user_agent)
-                    .map_err(|e| NoahError::Other(anyhow::anyhow!("Invalid user agent: {}", e)))?,
+                    .map_err(|e| NoahError::Other(anyhow::anyhow!("Invalid user agent: {e}")))?,
             );
 
             reqwest::Client::builder()
@@ -48,7 +48,7 @@ impl NoahClient {
             headers.insert(
                 "User-Agent",
                 HeaderValue::from_str(&config.user_agent)
-                    .map_err(|e| NoahError::Other(anyhow::anyhow!("Invalid user agent: {}", e)))?,
+                    .map_err(|e| NoahError::Other(anyhow::anyhow!("Invalid user agent: {e}")))?,
             );
 
             reqwest::blocking::Client::builder()
@@ -56,7 +56,9 @@ impl NoahClient {
                 .timeout(std::time::Duration::from_secs(config.timeout_secs))
                 .redirect(reqwest::redirect::Policy::limited(10))
                 .build()
-                .map_err(|e| NoahError::Other(anyhow::anyhow!("Failed to create blocking client: {}", e)))?
+                .map_err(|e| {
+                    NoahError::Other(anyhow::anyhow!("Failed to create blocking client: {e}"))
+                })?
         };
 
         Ok(Self {
@@ -77,19 +79,14 @@ impl NoahClient {
     /// Build a full URL from a path
     fn build_url(&self, path: &str) -> Result<Url> {
         // If path starts with /, we need to preserve the base URL's path
-        let path_to_join = if path.starts_with('/') {
-            // Remove leading / and join, then manually add it back
-            &path[1..]
-        } else {
-            path
-        };
-        
+        let path_to_join = path.strip_prefix('/').unwrap_or(path);
+
         let mut url = self.config.base_url.clone();
         url.path_segments_mut()
             .map_err(|_| NoahError::Other(anyhow::anyhow!("Cannot be a base URL")))?
             .pop_if_empty()
             .extend(path_to_join.split('/').filter(|s| !s.is_empty()));
-        
+
         Ok(url)
     }
 
@@ -184,7 +181,10 @@ impl NoahClient {
     ) -> Result<T> {
         let url = self.build_url(path)?;
         let body_bytes = serde_json::to_vec(body)?;
-        let mut builder = self.blocking_client.post(url.as_str()).body(body_bytes.clone());
+        let mut builder = self
+            .blocking_client
+            .post(url.as_str())
+            .body(body_bytes.clone());
 
         builder = crate::auth::add_auth_headers_sync(
             builder,
@@ -207,7 +207,10 @@ impl NoahClient {
     ) -> Result<T> {
         let url = self.build_url(path)?;
         let body_bytes = serde_json::to_vec(body)?;
-        let mut builder = self.blocking_client.put(url.as_str()).body(body_bytes.clone());
+        let mut builder = self
+            .blocking_client
+            .put(url.as_str())
+            .body(body_bytes.clone());
 
         builder = crate::auth::add_auth_headers_sync(
             builder,
@@ -222,10 +225,7 @@ impl NoahClient {
     }
 
     #[cfg(feature = "async")]
-    async fn handle_response<T: DeserializeOwned>(
-        &self,
-        response: reqwest::Response,
-    ) -> Result<T> {
+    async fn handle_response<T: DeserializeOwned>(&self, response: reqwest::Response) -> Result<T> {
         let status = response.status();
         let url = response.url().clone();
         let text = response.text().await?;
@@ -241,12 +241,16 @@ impl NoahClient {
         } else {
             // Try to parse as error response
             match serde_json::from_str::<crate::error::ApiErrorResponse>(&text) {
-                Ok(api_error) => Err(NoahError::ApiError(api_error)),
+                Ok(api_error) => Err(NoahError::ApiError(Box::new(api_error))),
                 Err(_) => Err(NoahError::Other(anyhow::anyhow!(
                     "HTTP {} from {}: {}",
                     status,
                     url,
-                    if text.len() > 200 { format!("{}...", &text[..200]) } else { text }
+                    if text.len() > 200 {
+                        format!("{}...", &text[..200])
+                    } else {
+                        text
+                    }
                 ))),
             }
         }
@@ -271,14 +275,9 @@ impl NoahClient {
         } else {
             // Try to parse as error response
             match serde_json::from_str::<crate::error::ApiErrorResponse>(&text) {
-                Ok(api_error) => Err(NoahError::ApiError(api_error)),
-                Err(_) => Err(NoahError::Other(anyhow::anyhow!(
-                    "HTTP {}: {}",
-                    status,
-                    text
-                ))),
+                Ok(api_error) => Err(NoahError::ApiError(Box::new(api_error))),
+                Err(_) => Err(NoahError::Other(anyhow::anyhow!("HTTP {status}: {text}"))),
             }
         }
     }
 }
-

@@ -69,7 +69,7 @@ pub fn generate_jwt_signature(
 ) -> Result<String> {
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map_err(|e| NoahError::JwtError(format!("Failed to get timestamp: {}", e)))?;
+        .map_err(|e| NoahError::JwtError(format!("Failed to get timestamp: {e}")))?;
 
     let iat = now.as_secs();
     let exp = iat + 300; // 5 minutes expiration
@@ -99,16 +99,16 @@ pub fn generate_jwt_signature(
     // Encode header and payload
     let header_b64 = URL_SAFE_NO_PAD.encode(serde_json::to_string(&header)?);
     let payload_b64 = URL_SAFE_NO_PAD.encode(serde_json::to_string(&payload)?);
-    let message = format!("{}.{}", header_b64, payload_b64);
+    let message = format!("{header_b64}.{payload_b64}");
 
     // Sign with HMAC-SHA256
     let mut mac = HmacSha256::new_from_slice(secret_key.as_bytes())
-        .map_err(|e| NoahError::JwtError(format!("Invalid secret key: {}", e)))?;
+        .map_err(|e| NoahError::JwtError(format!("Invalid secret key: {e}")))?;
     mac.update(message.as_bytes());
     let signature = mac.finalize();
     let signature_b64 = URL_SAFE_NO_PAD.encode(signature.into_bytes());
 
-    Ok(format!("{}.{}", message, signature_b64))
+    Ok(format!("{message}.{signature_b64}"))
 }
 
 /// Add authentication headers to a request builder
@@ -175,4 +175,3 @@ mod tests {
         assert!(signature.contains('.'));
     }
 }
-
