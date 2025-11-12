@@ -1,5 +1,9 @@
 ## Changelog
 
+### Features
+
+* feat: Configure the sdk to have a clean documentation. PR [#3](https://github.com/yezz123/noah-rust-sdk/pull/3) by [@yezz123](https://github.com/yezz123).
+
 ## 1.0.0
 
 A modern, type-safe Rust SDK for the [Noah Business API](https://noah.com).
