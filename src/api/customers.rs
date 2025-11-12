@@ -8,6 +8,8 @@
 //! use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
 //! use noah_sdk::models::customers::CustomerInput;
 //! use noah_sdk::models::common::CustomerID;
+//! use noah_sdk::models::FullName;
+//! use noah_sdk::models::StreetAddress;
 //!
 //! # #[cfg(feature = "async")]
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
@@ -16,10 +18,32 @@
 //! let client = NoahClient::new(config, auth)?;
 //!
 //! // Create or update a customer
-//! let customer_id = CustomerID::from("customer-123");
-//! let customer_input = CustomerInput {
-//!     // ... set customer fields
-//! };
+//! use noah_sdk::models::customers::{CustomerInput, IndividualCustomerInput, FullName, StreetAddress};
+//! use noah_sdk::models::common::*;
+//! let customer_id = "customer-123".to_string();
+//! // Note: IndividualCustomerInput requires many fields (customer_type, full_name,
+//! // date_of_birth, email, identities, primary_residence, etc.)
+//! // This is a simplified example - see the API documentation for full field details
+//! # let customer_input = CustomerInput::Individual(IndividualCustomerInput {
+//! #     customer_type: "Individual".to_string(),
+//! #     full_name: FullName {
+//! #         first_name: "John".to_string(),
+//! #         last_name: "Doe".to_string(),
+//! #         middle_name: None,
+//! #     },
+//! #     date_of_birth: "1990-01-01".to_string(),
+//! #     email: Some("john@example.com".to_string()),
+//! #     phone_number: None,
+//! #     identities: vec![],
+//! #     primary_residence: StreetAddress {
+//! #         street: "123 Main St".to_string(),
+//! #         street2: None,
+//! #         city: "New York".to_string(),
+//! #         post_code: "10001".to_string(),
+//! #         state: "NY".to_string(),
+//! #         country: "US".to_string(),
+//! #     },
+//! # });
 //! client.create_or_update_customer(&customer_id, &customer_input).await?;
 //!
 //! // Retrieve customer
@@ -64,7 +88,7 @@ impl NoahClient {
     /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
     /// let client = NoahClient::new(config, auth)?;
     ///
-    /// let customer_id = CustomerID::from("customer-123");
+    /// let customer_id = "customer-123".to_string();
     /// let customer = client.get_customer(&customer_id).await?;
     /// # Ok(())
     /// # }
@@ -119,10 +143,30 @@ impl NoahClient {
     /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
     /// let client = NoahClient::new(config, auth)?;
     ///
-    /// let customer_id = CustomerID::from("customer-123");
-    /// let customer = CustomerInput {
-    ///     // ... set customer fields
-    /// };
+    /// use noah_sdk::models::customers::{CustomerInput, IndividualCustomerInput, FullName, StreetAddress};
+    /// use noah_sdk::models::common::*;
+    /// let customer_id = "customer-123".to_string();
+    /// // Note: IndividualCustomerInput requires many fields - see API docs for details
+    /// # let customer = CustomerInput::Individual(IndividualCustomerInput {
+    /// #     customer_type: "Individual".to_string(),
+    /// #     full_name: FullName {
+    /// #         first_name: "John".to_string(),
+    /// #         last_name: "Doe".to_string(),
+    /// #         middle_name: None,
+    /// #     },
+    /// #     date_of_birth: "1990-01-01".to_string(),
+    /// #     email: Some("john@example.com".to_string()),
+    /// #     phone_number: None,
+    /// #     identities: vec![],
+    /// #     primary_residence: StreetAddress {
+    /// #         street: "123 Main St".to_string(),
+    /// #         street2: None,
+    /// #         city: "New York".to_string(),
+    /// #         post_code: "10001".to_string(),
+    /// #         state: "NY".to_string(),
+    /// #         country: "US".to_string(),
+    /// #     },
+    /// # });
     /// client.create_or_update_customer(&customer_id, &customer).await?;
     /// # Ok(())
     /// # }
@@ -183,7 +227,7 @@ impl NoahClient {
     /// let customers = client.get_customers(
     ///     Some(50),
     ///     None,
-    ///     Some(&SortDirection::Descending)
+    ///     Some(&SortDirection::Desc)
     /// ).await?;
     /// # Ok(())
     /// # }

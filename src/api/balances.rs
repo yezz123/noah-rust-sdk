@@ -20,8 +20,8 @@
 //! println!("Balances: {:?}", balances);
 //!
 //! // Get next page if available
-//! if let Some(next_token) = balances.next_page_token {
-//!     let next_page = client.get_balances(Some(20), Some(&next_token)).await?;
+//! if let Some(ref next_token) = balances.page_token {
+//!     let next_page = client.get_balances(Some(20), Some(next_token)).await?;
 //!     println!("Next page: {:?}", next_page);
 //! }
 //! # Ok(())
@@ -34,6 +34,7 @@
 //! use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
 //!
 //! # #[cfg(feature = "sync")]
+//! # fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let config = Config::new(Environment::Sandbox);
 //! let auth = AuthConfig::with_api_key("your-api-key".to_string());
 //! let client = NoahClient::new(config, auth)?;
@@ -41,6 +42,8 @@
 //! // Get balances with pagination
 //! let balances = client.get_balances_blocking(Some(50), None)?;
 //! println!("Balances: {:?}", balances);
+//! # Ok(())
+//! # }
 //! ```
 
 use crate::client::NoahClient;

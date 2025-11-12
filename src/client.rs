@@ -35,12 +35,15 @@
 //! use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
 //!
 //! # #[cfg(feature = "sync")]
+//! # fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! let config = Config::new(Environment::Sandbox);
 //! let auth = AuthConfig::with_api_key("your-api-key".to_string());
 //! let client = NoahClient::new(config, auth)?;
 //!
 //! // Use blocking methods
 //! let balances = client.get_balances_blocking(None, None)?;
+//! # Ok(())
+//! # }
 //! ```
 
 use crate::auth::AuthConfig;
@@ -110,12 +113,11 @@ impl NoahClient {
     /// // Using API key authentication
     /// let config = Config::new(Environment::Sandbox);
     /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
-    /// let client = NoahClient::new(config, auth)?;
+    /// let client = NoahClient::new(config.clone(), auth)?;
     ///
     /// // Using JWT signing
-    /// let config = Config::new(Environment::Production);
     /// let auth = AuthConfig::with_secret_key("your-secret-key".to_string());
-    /// let client = NoahClient::new(config, auth)?;
+    /// let client = NoahClient::new(config.clone(), auth)?;
     ///
     /// // Using both
     /// let auth = AuthConfig::with_both(

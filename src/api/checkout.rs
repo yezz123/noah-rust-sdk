@@ -19,18 +19,18 @@
 //! let client = NoahClient::new(config, auth)?;
 //!
 //! let request = CryptoPayinRequest {
-//!     crypto_currency: CryptoCurrencyCode::from("BTC"),
-//!     crypto_amount: PositiveDecimal::from("0.001"),
-//!     return_url: ReturnURL::from("https://example.com/return"),
-//!     customer_id: CustomerID::from("customer-123"),
+//!     crypto_currency: CryptoCurrencyCode::Btc,
+//!     crypto_amount: "0.001".to_string(),
+//!     return_url: "https://example.com/return".to_string(),
+//!     customer_id: "customer-123".to_string(),
 //!     external_id: None,
 //!     customer: None,
 //!     line_items: Default::default(),
-//!     nonce: Nonce::from("unique-nonce"),
+//!     nonce: "unique-nonce".to_string(),
 //! };
 //!
 //! let session = client.create_crypto_payin_session(&request).await?;
-//! println!("Checkout URL: {}", session.checkout_url);
+//! println!("Checkout URL: {}", session.hosted_url);
 //! # Ok(())
 //! # }
 //! ```
@@ -53,14 +53,14 @@ use serde::Serialize;
 /// use noah_sdk::models::common::*;
 ///
 /// let request = CryptoPayinRequest {
-///     crypto_currency: CryptoCurrencyCode::from("BTC"),
-///     crypto_amount: PositiveDecimal::from("0.001"),
-///     return_url: ReturnURL::from("https://example.com/return"),
-///     customer_id: CustomerID::from("customer-123"),
-///     external_id: Some(ExternalID::from("order-456")),
+///     crypto_currency: CryptoCurrencyCode::Btc,
+///     crypto_amount: "0.001".to_string(),
+///     return_url: "https://example.com/return".to_string(),
+///     customer_id: "customer-123".to_string(),
+///     external_id: Some("order-456".to_string()),
 ///     customer: None,
 ///     line_items: Default::default(),
-///     nonce: Nonce::from("unique-nonce-123"),
+///     nonce: "unique-nonce-123".to_string(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize)]
@@ -106,15 +106,15 @@ pub struct CryptoPayinRequest {
 ///
 /// let request = FiatPayinRequest {
 ///     payment_method_category: PaymentMethodCategory::Card,
-///     fiat_currency: FiatCurrencyCode::from("USD"),
-///     crypto_currency: CryptoCurrencyCode::from("BTC"),
-///     fiat_amount: PositiveDecimal::from("100.00"),
-///     return_url: ReturnURL::from("https://example.com/return"),
-///     customer_id: CustomerID::from("customer-123"),
+///     fiat_currency: "USD".to_string(),
+///     crypto_currency: CryptoCurrencyCode::Btc,
+///     fiat_amount: "100.00".to_string(),
+///     return_url: "https://example.com/return".to_string(),
+///     customer_id: "customer-123".to_string(),
 ///     external_id: None,
 ///     customer: None,
 ///     line_items: Default::default(),
-///     nonce: Nonce::from("unique-nonce"),
+///     nonce: "unique-nonce".to_string(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize)]
@@ -165,16 +165,16 @@ pub struct FiatPayinRequest {
 /// use noah_sdk::models::common::*;
 ///
 /// let request = FiatPayoutRequest {
-///     crypto_currency: CryptoCurrencyCode::from("BTC"),
-///     fiat_currency: FiatCurrencyCode::from("USD"),
-///     fiat_amount: PositiveDecimal::from("1000.00"),
-///     crypto_authorized_amount: PositiveDecimal::from("0.025"),
-///     return_url: ReturnURL::from("https://example.com/return"),
-///     customer_id: CustomerID::from("customer-123"),
+///     crypto_currency: CryptoCurrencyCode::Btc,
+///     fiat_currency: "USD".to_string(),
+///     fiat_amount: "1000.00".to_string(),
+///     crypto_authorized_amount: "0.025".to_string(),
+///     return_url: "https://example.com/return".to_string(),
+///     customer_id: "customer-123".to_string(),
 ///     external_id: None,
 ///     customer: None,
 ///     line_items: Default::default(),
-///     nonce: Nonce::from("unique-nonce"),
+///     nonce: "unique-nonce".to_string(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize)]
@@ -248,18 +248,18 @@ impl NoahClient {
     /// let client = NoahClient::new(config, auth)?;
     ///
     /// let request = CryptoPayinRequest {
-    ///     crypto_currency: CryptoCurrencyCode::from("BTC"),
-    ///     crypto_amount: PositiveDecimal::from("0.001"),
-    ///     return_url: ReturnURL::from("https://example.com/return"),
-    ///     customer_id: CustomerID::from("customer-123"),
+    ///     crypto_currency: CryptoCurrencyCode::Btc,
+    ///     crypto_amount: "0.001".to_string(),
+    ///     return_url: "https://example.com/return".to_string(),
+    ///     customer_id: "customer-123".to_string(),
     ///     external_id: None,
     ///     customer: None,
     ///     line_items: Default::default(),
-    ///     nonce: Nonce::from("unique-nonce"),
+    ///     nonce: "unique-nonce".to_string(),
     /// };
     ///
     /// let session = client.create_crypto_payin_session(&request).await?;
-    /// println!("Redirect customer to: {}", session.checkout_url);
+    /// println!("Redirect customer to: {}", session.hosted_url);
     /// # Ok(())
     /// # }
     /// ```
@@ -311,15 +311,15 @@ impl NoahClient {
     ///
     /// let request = FiatPayinRequest {
     ///     payment_method_category: PaymentMethodCategory::Card,
-    ///     fiat_currency: FiatCurrencyCode::from("USD"),
-    ///     crypto_currency: CryptoCurrencyCode::from("BTC"),
-    ///     fiat_amount: PositiveDecimal::from("100.00"),
-    ///     return_url: ReturnURL::from("https://example.com/return"),
-    ///     customer_id: CustomerID::from("customer-123"),
+    ///     fiat_currency: "USD".to_string(),
+    ///     crypto_currency: CryptoCurrencyCode::Btc,
+    ///     fiat_amount: "100.00".to_string(),
+    ///     return_url: "https://example.com/return".to_string(),
+    ///     customer_id: "customer-123".to_string(),
     ///     external_id: None,
     ///     customer: None,
     ///     line_items: Default::default(),
-    ///     nonce: Nonce::from("unique-nonce"),
+    ///     nonce: "unique-nonce".to_string(),
     /// };
     ///
     /// let session = client.create_fiat_payin_session(&request).await?;
@@ -373,16 +373,16 @@ impl NoahClient {
     /// let client = NoahClient::new(config, auth)?;
     ///
     /// let request = FiatPayoutRequest {
-    ///     crypto_currency: CryptoCurrencyCode::from("BTC"),
-    ///     fiat_currency: FiatCurrencyCode::from("USD"),
-    ///     fiat_amount: PositiveDecimal::from("1000.00"),
-    ///     crypto_authorized_amount: PositiveDecimal::from("0.025"),
-    ///     return_url: ReturnURL::from("https://example.com/return"),
-    ///     customer_id: CustomerID::from("customer-123"),
+    ///     crypto_currency: CryptoCurrencyCode::Btc,
+    ///     fiat_currency: "USD".to_string(),
+    ///     fiat_amount: "1000.00".to_string(),
+    ///     crypto_authorized_amount: "0.025".to_string(),
+    ///     return_url: "https://example.com/return".to_string(),
+    ///     customer_id: "customer-123".to_string(),
     ///     external_id: None,
     ///     customer: None,
     ///     line_items: Default::default(),
-    ///     nonce: Nonce::from("unique-nonce"),
+    ///     nonce: "unique-nonce".to_string(),
     /// };
     ///
     /// let session = client.create_fiat_payout_session(&request).await?;
