@@ -26,4 +26,3 @@ impl NoahClient {
         self.post_blocking("/workflows/bank-deposit-to-onchain-address", request)
     }
 }
-

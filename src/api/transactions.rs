@@ -21,13 +21,13 @@ impl NoahClient {
         let mut query_params = Vec::new();
 
         if let Some(size) = page_size {
-            query_params.push(format!("PageSize={}", size));
+            query_params.push(format!("PageSize={size}"));
         }
         if let Some(token) = page_token {
-            query_params.push(format!("PageToken={}", token));
+            query_params.push(format!("PageToken={token}"));
         }
         if let Some(sort) = sort_direction {
-            query_params.push(format!("SortDirection={:?}", sort));
+            query_params.push(format!("SortDirection={sort:?}"));
         }
 
         if !query_params.is_empty() {
@@ -50,13 +50,13 @@ impl NoahClient {
         let mut query_params = Vec::new();
 
         if let Some(size) = page_size {
-            query_params.push(format!("PageSize={}", size));
+            query_params.push(format!("PageSize={size}"));
         }
         if let Some(token) = page_token {
-            query_params.push(format!("PageToken={}", token));
+            query_params.push(format!("PageToken={token}"));
         }
         if let Some(sort) = sort_direction {
-            query_params.push(format!("SortDirection={:?}", sort));
+            query_params.push(format!("SortDirection={sort:?}"));
         }
 
         if !query_params.is_empty() {
@@ -70,29 +70,29 @@ impl NoahClient {
     /// Get transaction by ID (async)
     #[cfg(feature = "async")]
     pub async fn get_transaction(&self, transaction_id: &str) -> Result<Transaction> {
-        let path = format!("/transactions/{}", transaction_id);
+        let path = format!("/transactions/{transaction_id}");
         self.get(&path).await
     }
 
     /// Get transaction by ID (blocking)
     #[cfg(feature = "sync")]
     pub fn get_transaction_blocking(&self, transaction_id: &str) -> Result<Transaction> {
-        let path = format!("/transactions/{}", transaction_id);
+        let path = format!("/transactions/{transaction_id}");
         self.get_blocking(&path)
     }
 
     /// Prepare sell transaction (async)
     #[cfg(feature = "async")]
-    pub async fn prepare_sell(
-        &self,
-        request: &PrepareSellRequest,
-    ) -> Result<PrepareSellResponse> {
+    pub async fn prepare_sell(&self, request: &PrepareSellRequest) -> Result<PrepareSellResponse> {
         self.post("/transactions/sell/prepare", request).await
     }
 
     /// Prepare sell transaction (blocking)
     #[cfg(feature = "sync")]
-    pub fn prepare_sell_blocking(&self, request: &PrepareSellRequest) -> Result<PrepareSellResponse> {
+    pub fn prepare_sell_blocking(
+        &self,
+        request: &PrepareSellRequest,
+    ) -> Result<PrepareSellResponse> {
         self.post_blocking("/transactions/sell/prepare", request)
     }
 
@@ -108,4 +108,3 @@ impl NoahClient {
         self.post_blocking("/transactions/sell", request)
     }
 }
-

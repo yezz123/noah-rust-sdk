@@ -166,4 +166,3 @@ impl NoahClient {
         self.post_blocking("/checkout/payout/fiat", request)
     }
 }
-

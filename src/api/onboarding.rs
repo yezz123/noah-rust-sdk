@@ -35,7 +35,7 @@ impl NoahClient {
         customer_id: &CustomerID,
         request: &HostedOnboardingRequest,
     ) -> Result<HostedSessionResponse> {
-        let path = format!("/onboarding/{}", customer_id);
+        let path = format!("/onboarding/{customer_id}");
         self.post(&path, request).await
     }
 
@@ -46,7 +46,7 @@ impl NoahClient {
         customer_id: &CustomerID,
         request: &HostedOnboardingRequest,
     ) -> Result<HostedSessionResponse> {
-        let path = format!("/onboarding/{}", customer_id);
+        let path = format!("/onboarding/{customer_id}");
         self.post_blocking(&path, request)
     }
 
@@ -57,7 +57,7 @@ impl NoahClient {
         customer_id: &CustomerID,
         request: &PrefillOnboardingRequest,
     ) -> Result<()> {
-        let path = format!("/onboarding/{}/prefill", customer_id);
+        let path = format!("/onboarding/{customer_id}/prefill");
         let _response: Option<serde_json::Value> = self.post(&path, request).await?;
         Ok(())
     }
@@ -69,7 +69,7 @@ impl NoahClient {
         customer_id: &CustomerID,
         request: &PrefillOnboardingRequest,
     ) -> Result<()> {
-        let path = format!("/onboarding/{}/prefill", customer_id);
+        let path = format!("/onboarding/{customer_id}/prefill");
         let _response: Option<serde_json::Value> = self.post_blocking(&path, request)?;
         Ok(())
     }
@@ -84,17 +84,17 @@ impl NoahClient {
         side: Option<&str>,
         associate_id: Option<&str>,
     ) -> Result<PrefillDocumentUploadURLResponse> {
-        let mut path = format!("/onboarding/{}/prefill/documents/upload-url", customer_id);
+        let mut path = format!("/onboarding/{customer_id}/prefill/documents/upload-url");
         let mut query_params = vec![
-            format!("Type={}", document_type),
-            format!("CountryCode={}", country_code),
+            format!("Type={document_type}"),
+            format!("CountryCode={country_code}"),
         ];
 
         if let Some(s) = side {
-            query_params.push(format!("Side={}", s));
+            query_params.push(format!("Side={s}"));
         }
         if let Some(aid) = associate_id {
-            query_params.push(format!("AssociateID={}", aid));
+            query_params.push(format!("AssociateID={aid}"));
         }
 
         path.push('?');
@@ -113,17 +113,17 @@ impl NoahClient {
         side: Option<&str>,
         associate_id: Option<&str>,
     ) -> Result<PrefillDocumentUploadURLResponse> {
-        let mut path = format!("/onboarding/{}/prefill/documents/upload-url", customer_id);
+        let mut path = format!("/onboarding/{customer_id}/prefill/documents/upload-url");
         let mut query_params = vec![
-            format!("Type={}", document_type),
-            format!("CountryCode={}", country_code),
+            format!("Type={document_type}"),
+            format!("CountryCode={country_code}"),
         ];
 
         if let Some(s) = side {
-            query_params.push(format!("Side={}", s));
+            query_params.push(format!("Side={s}"));
         }
         if let Some(aid) = associate_id {
-            query_params.push(format!("AssociateID={}", aid));
+            query_params.push(format!("AssociateID={aid}"));
         }
 
         path.push('?');
@@ -132,4 +132,3 @@ impl NoahClient {
         self.get_blocking(&path)
     }
 }
-

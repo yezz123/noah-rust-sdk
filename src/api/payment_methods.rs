@@ -15,13 +15,13 @@ impl NoahClient {
         page_token: Option<&str>,
     ) -> Result<GetPaymentMethodsResponse> {
         let mut path = "/payment-methods".to_string();
-        let mut query_params = vec![format!("CustomerID={}", customer_id)];
+        let mut query_params = vec![format!("CustomerID={customer_id}")];
 
         if let Some(size) = page_size {
-            query_params.push(format!("PageSize={}", size));
+            query_params.push(format!("PageSize={size}"));
         }
         if let Some(token) = page_token {
-            query_params.push(format!("PageToken={}", token));
+            query_params.push(format!("PageToken={token}"));
         }
 
         path.push('?');
@@ -39,13 +39,13 @@ impl NoahClient {
         page_token: Option<&str>,
     ) -> Result<GetPaymentMethodsResponse> {
         let mut path = "/payment-methods".to_string();
-        let mut query_params = vec![format!("CustomerID={}", customer_id)];
+        let mut query_params = vec![format!("CustomerID={customer_id}")];
 
         if let Some(size) = page_size {
-            query_params.push(format!("PageSize={}", size));
+            query_params.push(format!("PageSize={size}"));
         }
         if let Some(token) = page_token {
-            query_params.push(format!("PageToken={}", token));
+            query_params.push(format!("PageToken={token}"));
         }
 
         path.push('?');
@@ -54,4 +54,3 @@ impl NoahClient {
         self.get_blocking(&path)
     }
 }
-

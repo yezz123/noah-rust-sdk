@@ -16,10 +16,10 @@ impl NoahClient {
         let mut query_params = Vec::new();
 
         if let Some(size) = page_size {
-            query_params.push(format!("PageSize={}", size));
+            query_params.push(format!("PageSize={size}"));
         }
         if let Some(token) = page_token {
-            query_params.push(format!("PageToken={}", token));
+            query_params.push(format!("PageToken={token}"));
         }
 
         if !query_params.is_empty() {
@@ -41,10 +41,10 @@ impl NoahClient {
         let mut query_params = Vec::new();
 
         if let Some(size) = page_size {
-            query_params.push(format!("PageSize={}", size));
+            query_params.push(format!("PageSize={size}"));
         }
         if let Some(token) = page_token {
-            query_params.push(format!("PageToken={}", token));
+            query_params.push(format!("PageToken={token}"));
         }
 
         if !query_params.is_empty() {
@@ -55,4 +55,3 @@ impl NoahClient {
         self.get_blocking(&path)
     }
 }
-

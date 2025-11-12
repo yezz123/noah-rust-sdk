@@ -9,14 +9,14 @@ impl NoahClient {
     /// Get customer by ID (async)
     #[cfg(feature = "async")]
     pub async fn get_customer(&self, customer_id: &CustomerID) -> Result<Customer> {
-        let path = format!("/customers/{}", customer_id);
+        let path = format!("/customers/{customer_id}");
         self.get(&path).await
     }
 
     /// Get customer by ID (blocking)
     #[cfg(feature = "sync")]
     pub fn get_customer_blocking(&self, customer_id: &CustomerID) -> Result<Customer> {
-        let path = format!("/customers/{}", customer_id);
+        let path = format!("/customers/{customer_id}");
         self.get_blocking(&path)
     }
 
@@ -27,7 +27,7 @@ impl NoahClient {
         customer_id: &CustomerID,
         customer: &CustomerInput,
     ) -> Result<()> {
-        let path = format!("/customers/{}", customer_id);
+        let path = format!("/customers/{customer_id}");
         let _response: Option<serde_json::Value> = self.put(&path, customer).await?;
         Ok(())
     }
@@ -39,7 +39,7 @@ impl NoahClient {
         customer_id: &CustomerID,
         customer: &CustomerInput,
     ) -> Result<()> {
-        let path = format!("/customers/{}", customer_id);
+        let path = format!("/customers/{customer_id}");
         let _response: Option<serde_json::Value> = self.put_blocking(&path, customer)?;
         Ok(())
     }
@@ -56,13 +56,13 @@ impl NoahClient {
         let mut query_params = Vec::new();
 
         if let Some(size) = page_size {
-            query_params.push(format!("PageSize={}", size));
+            query_params.push(format!("PageSize={size}"));
         }
         if let Some(token) = page_token {
-            query_params.push(format!("PageToken={}", token));
+            query_params.push(format!("PageToken={token}"));
         }
         if let Some(sort) = sort_direction {
-            query_params.push(format!("SortDirection={:?}", sort));
+            query_params.push(format!("SortDirection={sort:?}"));
         }
 
         if !query_params.is_empty() {
@@ -85,13 +85,13 @@ impl NoahClient {
         let mut query_params = Vec::new();
 
         if let Some(size) = page_size {
-            query_params.push(format!("PageSize={}", size));
+            query_params.push(format!("PageSize={size}"));
         }
         if let Some(token) = page_token {
-            query_params.push(format!("PageToken={}", token));
+            query_params.push(format!("PageToken={token}"));
         }
         if let Some(sort) = sort_direction {
-            query_params.push(format!("SortDirection={:?}", sort));
+            query_params.push(format!("SortDirection={sort:?}"));
         }
 
         if !query_params.is_empty() {
@@ -102,4 +102,3 @@ impl NoahClient {
         self.get_blocking(&path)
     }
 }
-
