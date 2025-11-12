@@ -7,7 +7,7 @@ description = "A modern, type-safe Rust SDK for the Noah Business API"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/yezz123/noah-sdk"
 documentation = "https://docs.rs/noah-sdk"
-keywords = ["noah", "api", "sdk", "crypto", "payments", "fintech"]
+keywords = ["noah", "sdk", "crypto", "payments", "fintech"]
 categories = ["api-bindings", "web-programming", "authentication"]
 
 [features]
