@@ -1,4 +1,42 @@
 //! Authentication module for JWT signing and API key management
+//!
+//! This module provides authentication functionality for the Noah SDK.
+//! It supports both API key authentication and JWT signing.
+//!
+//! # Authentication Methods
+//!
+//! ## API Key Authentication
+//!
+//! Simple authentication using an API key:
+//!
+//! ```no_run
+//! use noah_sdk::AuthConfig;
+//!
+//! let auth = AuthConfig::with_api_key("your-api-key".to_string());
+//! ```
+//!
+//! ## JWT Signing
+//!
+//! More secure authentication using JWT signing with a secret key:
+//!
+//! ```no_run
+//! use noah_sdk::AuthConfig;
+//!
+//! let auth = AuthConfig::with_secret_key("your-secret-key".to_string());
+//! ```
+//!
+//! ## Both Methods
+//!
+//! You can use both API key and JWT signing together:
+//!
+//! ```no_run
+//! use noah_sdk::AuthConfig;
+//!
+//! let auth = AuthConfig::with_both(
+//!     "your-api-key".to_string(),
+//!     "your-secret-key".to_string()
+//! );
+//! ```
 
 use crate::error::{NoahError, Result};
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
@@ -10,6 +48,27 @@ use std::time::{SystemTime, UNIX_EPOCH};
 type HmacSha256 = Hmac<Sha256>;
 
 /// Authentication configuration
+///
+/// Configures how the client authenticates with the Noah API.
+/// Supports API key authentication, JWT signing, or both.
+///
+/// # Examples
+///
+/// ```no_run
+/// use noah_sdk::AuthConfig;
+///
+/// // API key only
+/// let auth = AuthConfig::with_api_key("your-api-key".to_string());
+///
+/// // JWT signing only
+/// let auth = AuthConfig::with_secret_key("your-secret-key".to_string());
+///
+/// // Both methods
+/// let auth = AuthConfig::with_both(
+///     "your-api-key".to_string(),
+///     "your-secret-key".to_string()
+/// );
+/// ```
 #[derive(Debug, Clone)]
 pub struct AuthConfig {
     /// API key for X-Api-Key header
@@ -20,6 +79,20 @@ pub struct AuthConfig {
 
 impl AuthConfig {
     /// Create new auth config with API key only
+    ///
+    /// This method uses simple API key authentication via the `X-Api-Key` header.
+    ///
+    /// # Arguments
+    ///
+    /// * `api_key` - Your Noah API key
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use noah_sdk::AuthConfig;
+    ///
+    /// let auth = AuthConfig::with_api_key("your-api-key".to_string());
+    /// ```
     pub fn with_api_key(api_key: String) -> Self {
         Self {
             api_key: Some(api_key),
@@ -28,6 +101,21 @@ impl AuthConfig {
     }
 
     /// Create new auth config with JWT secret key only
+    ///
+    /// This method uses JWT signing for authentication. The client will automatically
+    /// generate and sign JWTs for each request using the `Api-Signature` header.
+    ///
+    /// # Arguments
+    ///
+    /// * `secret_key` - Your Noah secret key for JWT signing
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use noah_sdk::AuthConfig;
+    ///
+    /// let auth = AuthConfig::with_secret_key("your-secret-key".to_string());
+    /// ```
     pub fn with_secret_key(secret_key: String) -> Self {
         Self {
             api_key: None,
@@ -36,6 +124,25 @@ impl AuthConfig {
     }
 
     /// Create new auth config with both API key and secret key
+    ///
+    /// This method uses both API key authentication and JWT signing.
+    /// Both headers will be included in requests.
+    ///
+    /// # Arguments
+    ///
+    /// * `api_key` - Your Noah API key
+    /// * `secret_key` - Your Noah secret key for JWT signing
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use noah_sdk::AuthConfig;
+    ///
+    /// let auth = AuthConfig::with_both(
+    ///     "your-api-key".to_string(),
+    ///     "your-secret-key".to_string()
+    /// );
+    /// ```
     pub fn with_both(api_key: String, secret_key: String) -> Self {
         Self {
             api_key: Some(api_key),

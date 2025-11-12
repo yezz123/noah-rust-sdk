@@ -1,14 +1,19 @@
 [package]
 name = "noah-sdk"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 authors = ["Yezz123 <hello@yezz.me>"]
 description = "A modern, type-safe Rust SDK for the Noah Business API"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/yezz123/noah-sdk"
+repository = "https://github.com/yezz123/noah-rust-sdk"
 documentation = "https://docs.rs/noah-sdk"
+readme = "README.md"
 keywords = ["noah", "sdk", "crypto", "payments", "fintech"]
 categories = ["api-bindings", "web-programming", "authentication"]
+
+[package.metadata.docs.rs]
+features = ["async", "rustls-tls"]
+rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = ["async", "rustls-tls"]
