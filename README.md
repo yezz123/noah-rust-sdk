@@ -2,6 +2,16 @@
 
 ![Noah SDK](https://github.com/yezz123/noah-rust-sdk/blob/main/docs/images/logo.png?raw=true)
 
+[![Documentation](https://docs.rs/noah-sdk/badge.svg)](https://docs.rs/noah-sdk)
+[![Crates.io](https://img.shields.io/crates/v/noah-sdk.svg)](https://crates.io/crates/noah-sdk)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-1.60+-black.svg)](https://www.rust-lang.org)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.rs/noah-sdk)
+[![CI](https://github.com/yezz123/noah-rust-sdk/actions/workflows/ci.yaml/badge.svg)](https://github.com/yezz123/noah-rust-sdk/actions/workflows/ci.yaml)
+[![dependency status](https://deps.rs/repo/github/yezz123/noah-rust-sdk/status.svg)](https://deps.rs/repo/github/yezz123/noah-rust-sdk)
+
+---
+
 A modern, type-safe Rust SDK for the [Noah Business API](https://noah.com).
 
 ## Features
