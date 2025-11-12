@@ -117,4 +117,3 @@ pub struct GetPaymentMethodsResponse {
     #[serde(rename = "PageToken")]
     pub page_token: Option<String>,
 }
-

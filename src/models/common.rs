@@ -231,4 +231,3 @@ pub type PhoneNumber = String;
 
 /// Return URL
 pub type ReturnURL = String;
-

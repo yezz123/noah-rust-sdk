@@ -107,4 +107,3 @@ pub struct CheckoutSessionResponse {
     #[serde(rename = "CheckoutSession")]
     pub checkout_session: CheckoutSession,
 }
-

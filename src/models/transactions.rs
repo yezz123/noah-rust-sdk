@@ -196,4 +196,3 @@ pub struct SellResponse {
     #[serde(rename = "Transaction")]
     pub transaction: Transaction,
 }
-

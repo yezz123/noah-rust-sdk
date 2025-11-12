@@ -277,4 +277,3 @@ pub struct GetCustomersResponse {
     #[serde(rename = "PageToken")]
     pub page_token: Option<String>,
 }
-

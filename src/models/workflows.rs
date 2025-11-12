@@ -74,4 +74,3 @@ pub struct BankDepositToOnchainAddressResponse {
     #[serde(rename = "BankAddress")]
     pub bank_address: Option<crate::models::customers::StreetAddress>,
 }
-

@@ -49,4 +49,3 @@ pub struct PrefillDocumentUploadURLResponse {
     #[serde(rename = "ExpiresAt")]
     pub expires_at: DateTime,
 }
-

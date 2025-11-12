@@ -81,4 +81,3 @@ pub struct ChannelsCountriesResponse {
     #[serde(flatten)]
     pub countries: std::collections::HashMap<CountryCode, Vec<FiatCurrencyCode>>,
 }
-

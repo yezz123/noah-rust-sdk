@@ -30,4 +30,3 @@ pub struct GetBalancesResponse {
     #[serde(rename = "PageToken")]
     pub page_token: Option<String>,
 }
-
