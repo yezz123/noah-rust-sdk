@@ -1,0 +1,79 @@
+[package]
+name = "noah-sdk"
+version = "0.1.0"
+edition = "2021"
+authors = ["Yezz123 <hello@yezz.me>"]
+description = "A modern, type-safe Rust SDK for the Noah Business API"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/0xhyperbeat/pay-api"
+documentation = "https://docs.rs/noah-sdk"
+keywords = ["noah", "api", "sdk", "crypto", "payments", "fintech"]
+categories = ["api-bindings", "web-programming", "authentication"]
+
+[features]
+default = ["async", "rustls-tls"]
+async = ["reqwest/rustls-tls", "tokio/full"]
+sync = ["reqwest/blocking", "reqwest/rustls-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
+native-tls = ["reqwest/native-tls"]
+gzip = ["reqwest/gzip"]
+
+[dependencies]
+# HTTP client
+reqwest = { version = "0.12", default-features = false, features = ["json"] }
+tokio = { version = "1.0", features = ["rt", "time"], optional = true }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", default-features = false }
+
+# Date/time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID support
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Authentication (JWT signing)
+base64 = "0.22"
+hmac = "0.12"
+sha2 = "0.10"
+
+# URL parsing
+url = "2.5"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockito = "1.2"
+serde_test = "1.0"
+
+[lib]
+name = "noah_sdk"
+path = "src/lib.rs"
+
+[[example]]
+name = "basic_client"
+path = "examples/basic_client.rs"
+
+[[example]]
+name = "list_balances"
+path = "examples/list_balances.rs"
+
+[[example]]
+name = "create_customer"
+path = "examples/create_customer.rs"
+
+[[example]]
+name = "checkout_session"
+path = "examples/checkout_session.rs"
+
+[[example]]
+name = "sell_transaction"
+path = "examples/sell_transaction.rs"
+
+[[example]]
+name = "webhook_handler"
+path = "examples/webhook_handler.rs"
