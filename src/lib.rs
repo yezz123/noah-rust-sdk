@@ -32,6 +32,9 @@
 
 pub mod api;
 pub mod auth;
+#[cfg(feature = "axum")]
+pub mod axum_wrappers;
+
 pub mod client;
 pub mod config;
 pub mod error;
