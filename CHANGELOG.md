@@ -1,5 +1,9 @@
 ## Changelog
 
+## 1.0.2
+
+- fix documenentation issues
+
 ## 1.0.1
 
 ### Features
