@@ -1,8 +1,11 @@
 ## Changelog
 
+
+## 1.0.3
+
 ### Features
 
-* Add Axum wrapper types for deserialization and OpenAPI schema generation. PR [#4](https://github.com/yezz123/noah-rust-sdk/pull/4) by [@yezz123](https://github.com/yezz123).
+- Add Axum wrapper types for deserialization and OpenAPI schema generation. PR [#4](https://github.com/yezz123/noah-rust-sdk/pull/4) by [@yezz123](https://github.com/yezz123).
 
 ## 1.0.2
 

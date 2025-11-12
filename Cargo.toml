@@ -1,6 +1,6 @@
 [package]
 name = "noah-sdk"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2021"
 authors = ["Yezz123 <hello@yezz.me>"]
 description = "A modern, type-safe Rust SDK for the Noah Business API"
