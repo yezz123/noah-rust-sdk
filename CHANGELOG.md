@@ -1,5 +1,11 @@
 ## Changelog
 
+## 1.0.4
+
+### Features
+
+- Refactor Axum wrapper types to match our configuration.
+
 ## 1.0.3
 
 ### Features
