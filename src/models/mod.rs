@@ -1,5 +1,6 @@
 //! Models for the Noah SDK
 
+pub mod axum;
 pub mod balances;
 pub mod channels;
 pub mod checkout;
@@ -10,6 +11,8 @@ pub mod payment_methods;
 pub mod transactions;
 pub mod workflows;
 
+#[cfg(feature = "axum")]
+pub use axum::*;
 pub use balances::*;
 pub use channels::*;
 pub use checkout::*;

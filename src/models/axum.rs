@@ -3,23 +3,8 @@
 //! This module provides wrapper types that implement `Deserialize` for Axum's `Json` extractor
 //! and `ToSchema` for OpenAPI documentation generation with `utoipa`.
 //!
-//! These types wrap the SDK's request and response types, allowing them to be used directly
+//! These types wrap the SDK's request types, allowing them to be used directly
 //! with Axum's JSON extractor while maintaining compatibility with the SDK's internal types.
-//!
-//! # Example
-//!
-//! ```no_run
-//! use axum::Json;
-//! use noah_sdk::axum_wrappers::FiatPayoutRequestWrapper;
-//!
-//! async fn create_payout(
-//!     Json(request): Json<FiatPayoutRequestWrapper>
-//! ) -> Result<String, String> {
-//!     let sdk_request: noah_sdk::api::checkout::FiatPayoutRequest = request.into();
-//!     // Use sdk_request with the SDK client
-//!     Ok("Success".to_string())
-//! }
-//! ```
 
 #[cfg(feature = "axum")]
 use crate::api::checkout::{CryptoPayinRequest, FiatPayinRequest, FiatPayoutRequest};
@@ -53,17 +38,13 @@ use crate::models::workflows::{
 #[cfg(feature = "axum")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "axum")]
-#[allow(unused_imports)]
-use serde_json::json; // Used in #[schema(example = json!(...))] attributes
-#[cfg(feature = "axum")]
 use utoipa::ToSchema;
 
 // ============================================================================
 // Request Wrapper Types (for Deserialization)
 // ============================================================================
 
-/// Wrapper type that implements Deserialize for Axum Json extractor
-/// This mirrors the SDK FiatPayoutRequest type but implements Deserialize
+/// Wrapper for FiatPayoutRequest that implements Deserialize
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct FiatPayoutRequestWrapper {
@@ -107,7 +88,7 @@ impl From<FiatPayoutRequestWrapper> for FiatPayoutRequest {
             "BTC_TEST" => CryptoCurrencyCode::BtcTest,
             "USDC" => CryptoCurrencyCode::Usdc,
             "USDC_TEST" => CryptoCurrencyCode::UsdcTest,
-            _ => CryptoCurrencyCode::Usdc, // Default fallback
+            _ => CryptoCurrencyCode::Usdc,
         };
 
         Self {
@@ -125,8 +106,7 @@ impl From<FiatPayoutRequestWrapper> for FiatPayoutRequest {
     }
 }
 
-/// Wrapper type that implements Deserialize for Axum Json extractor
-/// This mirrors the SDK CryptoPayinRequest type but implements Deserialize
+/// Wrapper for CryptoPayinRequest that implements Deserialize
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct CryptoPayinRequestWrapper {
@@ -164,7 +144,7 @@ impl From<CryptoPayinRequestWrapper> for CryptoPayinRequest {
             "BTC_TEST" => CryptoCurrencyCode::BtcTest,
             "USDC" => CryptoCurrencyCode::Usdc,
             "USDC_TEST" => CryptoCurrencyCode::UsdcTest,
-            _ => CryptoCurrencyCode::Usdc, // Default fallback
+            _ => CryptoCurrencyCode::Usdc,
         };
 
         Self {
@@ -180,8 +160,7 @@ impl From<CryptoPayinRequestWrapper> for CryptoPayinRequest {
     }
 }
 
-/// Wrapper type that implements Deserialize for Axum Json extractor
-/// This mirrors the SDK FiatPayinRequest type but implements Deserialize
+/// Wrapper for FiatPayinRequest that implements Deserialize
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct FiatPayinRequestWrapper {
@@ -224,7 +203,7 @@ impl From<FiatPayinRequestWrapper> for FiatPayinRequest {
             "Bank" => PaymentMethodCategory::Bank,
             "Card" => PaymentMethodCategory::Card,
             "Identifier" => PaymentMethodCategory::Identifier,
-            _ => PaymentMethodCategory::Bank, // Default fallback
+            _ => PaymentMethodCategory::Bank,
         };
 
         let crypto_currency = match wrapper.crypto_currency.as_str() {
@@ -232,7 +211,7 @@ impl From<FiatPayinRequestWrapper> for FiatPayinRequest {
             "BTC_TEST" => CryptoCurrencyCode::BtcTest,
             "USDC" => CryptoCurrencyCode::Usdc,
             "USDC_TEST" => CryptoCurrencyCode::UsdcTest,
-            _ => CryptoCurrencyCode::Usdc, // Default fallback
+            _ => CryptoCurrencyCode::Usdc,
         };
 
         Self {
@@ -250,8 +229,7 @@ impl From<FiatPayinRequestWrapper> for FiatPayinRequest {
     }
 }
 
-/// Wrapper type that implements Deserialize for Axum Json extractor
-/// This mirrors the SDK PrefillOnboardingRequest type but implements Deserialize
+/// Wrapper for PrefillOnboardingRequest that implements Deserialize
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct PrefillOnboardingRequestWrapper {
@@ -261,7 +239,10 @@ pub struct PrefillOnboardingRequestWrapper {
     #[serde(rename = "Token")]
     pub token: Option<String>,
 
+    // Note: flatten doesn't work well with ToSchema derive, so we'll accept it as a regular field
+    // and handle the conversion in the From impl
     #[serde(flatten)]
+    #[schema(ignore)]
     pub data: Option<serde_json::Value>,
 }
 
@@ -274,11 +255,8 @@ impl From<PrefillOnboardingRequestWrapper> for PrefillOnboardingRequest {
                 token,
             }
         } else if let Some(data) = wrapper.data {
-            // Try to determine if it's business or individual based on the data structure
-            // For now, we'll use IndividualCustomerPrefill as default
             PrefillOnboardingRequest::IndividualCustomerPrefill(data)
         } else {
-            // Default to a simple structure
             PrefillOnboardingRequest::IndividualCustomerPrefill(serde_json::json!({}))
         }
     }
@@ -351,25 +329,224 @@ pub struct GetPaymentMethodsQueryParams {
 }
 
 // ============================================================================
+// Additional Request Wrapper Types
+// ============================================================================
+
+/// Wrapper for PrepareSellRequest that implements Deserialize
+#[cfg(feature = "axum")]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct PrepareSellRequestWrapper {
+    #[serde(rename = "ChannelID")]
+    pub channel_id: String,
+
+    #[serde(rename = "PaymentMethodID")]
+    pub payment_method_id: Option<String>,
+
+    #[serde(rename = "CryptoCurrency")]
+    pub crypto_currency: String,
+
+    #[serde(rename = "CustomerID")]
+    pub customer_id: Option<String>,
+
+    #[serde(rename = "FiatAmount")]
+    pub fiat_amount: String,
+
+    #[serde(rename = "Form")]
+    pub form: Option<serde_json::Value>,
+
+    #[serde(rename = "DelayedSell")]
+    pub delayed_sell: Option<bool>,
+}
+
+#[cfg(feature = "axum")]
+impl From<PrepareSellRequestWrapper> for PrepareSellRequest {
+    fn from(wrapper: PrepareSellRequestWrapper) -> Self {
+        let crypto_currency = match wrapper.crypto_currency.as_str() {
+            "BTC" => CryptoCurrencyCode::Btc,
+            "BTC_TEST" => CryptoCurrencyCode::BtcTest,
+            "USDC" => CryptoCurrencyCode::Usdc,
+            "USDC_TEST" => CryptoCurrencyCode::UsdcTest,
+            _ => CryptoCurrencyCode::Usdc,
+        };
+
+        Self {
+            channel_id: wrapper.channel_id,
+            payment_method_id: wrapper.payment_method_id,
+            crypto_currency,
+            customer_id: wrapper.customer_id,
+            fiat_amount: wrapper.fiat_amount,
+            form: wrapper.form,
+            delayed_sell: wrapper.delayed_sell,
+        }
+    }
+}
+
+/// Wrapper for SellRequest that implements Deserialize
+#[cfg(feature = "axum")]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct SellRequestWrapper {
+    #[serde(rename = "CryptoCurrency")]
+    pub crypto_currency: String,
+
+    #[serde(rename = "FiatAmount")]
+    pub fiat_amount: String,
+
+    #[serde(rename = "CryptoAuthorizedAmount")]
+    pub crypto_authorized_amount: String,
+
+    #[serde(rename = "FormSessionID")]
+    pub form_session_id: String,
+
+    #[serde(rename = "Nonce")]
+    pub nonce: String,
+
+    #[serde(rename = "ExternalID")]
+    pub external_id: Option<String>,
+}
+
+#[cfg(feature = "axum")]
+impl From<SellRequestWrapper> for SellRequest {
+    fn from(wrapper: SellRequestWrapper) -> Self {
+        let crypto_currency = match wrapper.crypto_currency.as_str() {
+            "BTC" => CryptoCurrencyCode::Btc,
+            "BTC_TEST" => CryptoCurrencyCode::BtcTest,
+            "USDC" => CryptoCurrencyCode::Usdc,
+            "USDC_TEST" => CryptoCurrencyCode::UsdcTest,
+            _ => CryptoCurrencyCode::Usdc,
+        };
+
+        Self {
+            crypto_currency,
+            fiat_amount: wrapper.fiat_amount,
+            crypto_authorized_amount: wrapper.crypto_authorized_amount,
+            form_session_id: wrapper.form_session_id,
+            nonce: wrapper.nonce,
+            external_id: wrapper.external_id,
+        }
+    }
+}
+
+/// Wrapper for HostedOnboardingRequest that implements Deserialize
+#[cfg(feature = "axum")]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct HostedOnboardingRequestWrapper {
+    #[serde(rename = "ReturnURL")]
+    pub return_url: String,
+
+    #[serde(rename = "FiatOptions")]
+    pub fiat_options: Vec<FiatOptionWrapper>,
+
+    #[serde(rename = "Form")]
+    pub form: Option<serde_json::Value>,
+
+    #[serde(rename = "Metadata")]
+    pub metadata: Option<std::collections::HashMap<String, String>>,
+}
+
+#[cfg(feature = "axum")]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct FiatOptionWrapper {
+    #[serde(rename = "FiatCurrencyCode")]
+    pub fiat_currency_code: String,
+}
+
+#[cfg(feature = "axum")]
+impl From<HostedOnboardingRequestWrapper> for HostedOnboardingRequest {
+    fn from(wrapper: HostedOnboardingRequestWrapper) -> Self {
+        use crate::models::onboarding::FiatOption;
+        Self {
+            return_url: wrapper.return_url,
+            fiat_options: wrapper
+                .fiat_options
+                .into_iter()
+                .map(|opt| FiatOption {
+                    fiat_currency_code: opt.fiat_currency_code,
+                })
+                .collect(),
+            form: wrapper.form,
+            metadata: wrapper.metadata,
+        }
+    }
+}
+
+/// Wrapper for BankDepositToOnchainAddressRequest that implements Deserialize
+#[cfg(feature = "axum")]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct BankDepositToOnchainAddressRequestWrapper {
+    #[serde(rename = "CustomerID")]
+    pub customer_id: String,
+
+    #[serde(rename = "FiatCurrency")]
+    pub fiat_currency: String,
+
+    #[serde(rename = "CryptoCurrency")]
+    pub crypto_currency: String,
+
+    #[serde(rename = "Network")]
+    pub network: String,
+
+    #[serde(rename = "DestinationAddress")]
+    pub destination_address: DestinationAddressWrapper,
+}
+
+#[cfg(feature = "axum")]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct DestinationAddressWrapper {
+    #[serde(rename = "Address")]
+    pub address: String,
+}
+
+#[cfg(feature = "axum")]
+impl From<BankDepositToOnchainAddressRequestWrapper> for BankDepositToOnchainAddressRequest {
+    fn from(wrapper: BankDepositToOnchainAddressRequestWrapper) -> Self {
+        let crypto_currency = match wrapper.crypto_currency.as_str() {
+            "BTC" => CryptoCurrencyCode::Btc,
+            "BTC_TEST" => CryptoCurrencyCode::BtcTest,
+            "USDC" => CryptoCurrencyCode::Usdc,
+            "USDC_TEST" => CryptoCurrencyCode::UsdcTest,
+            _ => CryptoCurrencyCode::Usdc,
+        };
+
+        let network = match wrapper.network.as_str() {
+            "Bitcoin" => Network::Bitcoin,
+            "BitcoinTest" => Network::BitcoinTest,
+            "Ethereum" => Network::Ethereum,
+            "EthereumTestSepolia" => Network::EthereumTestSepolia,
+            "Celo" => Network::Celo,
+            "CeloTestSepolia" => Network::CeloTestSepolia,
+            "FlowEvm" => Network::FlowEvm,
+            "FlowEvmTest" => Network::FlowEvmTest,
+            "Gnosis" => Network::Gnosis,
+            "GnosisTestChiado" => Network::GnosisTestChiado,
+            "Lightning" => Network::Lightning,
+            "LightningTest" => Network::LightningTest,
+            "PolygonPos" => Network::PolygonPos,
+            "PolygonTestAmoy" => Network::PolygonTestAmoy,
+            "Solana" => Network::Solana,
+            "SolanaDevnet" => Network::SolanaDevnet,
+            "OffNetwork" => Network::OffNetwork,
+            _ => Network::Ethereum,
+        };
+
+        Self {
+            customer_id: wrapper.customer_id,
+            fiat_currency: wrapper.fiat_currency,
+            crypto_currency,
+            network,
+            destination_address: DestinationAddress {
+                address: wrapper.destination_address.address,
+            },
+        }
+    }
+}
+
+// ============================================================================
 // Response Wrapper Types (for OpenAPI Schema)
 // ============================================================================
 
 /// Wrapper for GetBalancesResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "items": [
-            {
-                "crypto_currency": "USDC",
-                "total": "1000.00",
-                "available": "950.00",
-                "locked": "50.00"
-            }
-        ],
-        "next_page_token": null
-    })
-)]
 pub struct GetBalancesResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -388,21 +565,6 @@ impl From<GetBalancesResponse> for GetBalancesResponseWrapper {
 /// Wrapper for GetChannelsResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "items": [
-            {
-                "id": "channel_123",
-                "country": "US",
-                "payment_method_category": "Bank",
-                "fiat_currency": "USD",
-                "min_fiat_amount": "10.00",
-                "max_fiat_amount": "10000.00"
-            }
-        ],
-        "next_page_token": null
-    })
-)]
 pub struct GetChannelsResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -421,16 +583,6 @@ impl From<GetChannelsResponse> for GetChannelsResponseWrapper {
 /// Wrapper for Channel
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "id": "channel_123",
-        "country": "US",
-        "payment_method_category": "Bank",
-        "fiat_currency": "USD",
-        "min_fiat_amount": "10.00",
-        "max_fiat_amount": "10000.00"
-    })
-)]
 pub struct ChannelWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -449,11 +601,6 @@ impl From<Channel> for ChannelWrapper {
 /// Wrapper for ChannelsCountriesResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "countries": ["US", "GB", "CA"]
-    })
-)]
 pub struct ChannelsCountriesResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -472,16 +619,6 @@ impl From<ChannelsCountriesResponse> for ChannelsCountriesResponseWrapper {
 /// Wrapper for CustomerInput
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "Individual": {
-            "full_name": "John Doe",
-            "date_of_birth": "1990-01-01",
-            "email": "john.doe@example.com",
-            "phone": "+1234567890"
-        }
-    })
-)]
 pub struct CustomerInputWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -500,19 +637,14 @@ impl From<CustomerInput> for CustomerInputWrapper {
 #[cfg(feature = "axum")]
 impl From<CustomerInputWrapper> for CustomerInput {
     fn from(wrapper: CustomerInputWrapper) -> Self {
-        // Try to deserialize from JSON value
-        // If it fails, try to create a minimal valid structure from the JSON
         match serde_json::from_value::<CustomerInput>(wrapper.inner.clone()) {
             Ok(input) => input,
             Err(_) => {
-                // If deserialization fails, try to parse as IndividualCustomerInput directly
                 match serde_json::from_value::<crate::models::customers::IndividualCustomerInput>(
                     wrapper.inner,
                 ) {
                     Ok(individual) => CustomerInput::Individual(individual),
                     Err(_) => {
-                        // Last resort: return an error by panicking
-                        // This should never happen in practice as the JSON should be valid
                         panic!(
                             "Failed to deserialize CustomerInput from JSON. This indicates invalid input data."
                         );
@@ -526,18 +658,6 @@ impl From<CustomerInputWrapper> for CustomerInput {
 /// Wrapper for Customer
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "Individual": {
-            "id": "customer_123",
-            "full_name": "John Doe",
-            "date_of_birth": "1990-01-01",
-            "email": "john.doe@example.com",
-            "phone": "+1234567890",
-            "status": "Active"
-        }
-    })
-)]
 pub struct CustomerWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -556,20 +676,6 @@ impl From<Customer> for CustomerWrapper {
 /// Wrapper for GetCustomersResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "items": [
-            {
-                "Individual": {
-                    "id": "customer_123",
-                    "full_name": "John Doe",
-                    "email": "john.doe@example.com"
-                }
-            }
-        ],
-        "next_page_token": null
-    })
-)]
 pub struct GetCustomersResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -588,15 +694,6 @@ impl From<GetCustomersResponse> for GetCustomersResponseWrapper {
 /// Wrapper for CheckoutSessionResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "checkout_session": {
-            "id": "session_123",
-            "url": "https://checkout.noah.com/session_123",
-            "status": "pending"
-        }
-    })
-)]
 pub struct CheckoutSessionResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -612,53 +709,9 @@ impl From<CheckoutSessionResponse> for CheckoutSessionResponseWrapper {
     }
 }
 
-/// Wrapper for HostedOnboardingRequest
-#[cfg(feature = "axum")]
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "return_url": "https://example.com/return",
-        "fiat_options": ["USD", "EUR"],
-        "form": null,
-        "metadata": null
-    })
-)]
-pub struct HostedOnboardingRequestWrapper {
-    #[serde(flatten)]
-    #[schema(value_type = Object)]
-    pub inner: serde_json::Value,
-}
-
-#[cfg(feature = "axum")]
-impl From<HostedOnboardingRequest> for HostedOnboardingRequestWrapper {
-    fn from(request: HostedOnboardingRequest) -> Self {
-        Self {
-            inner: serde_json::to_value(request).unwrap_or_default(),
-        }
-    }
-}
-
-#[cfg(feature = "axum")]
-impl From<HostedOnboardingRequestWrapper> for HostedOnboardingRequest {
-    fn from(wrapper: HostedOnboardingRequestWrapper) -> Self {
-        serde_json::from_value(wrapper.inner).unwrap_or_else(|_| HostedOnboardingRequest {
-            return_url: String::new(),
-            fiat_options: vec![],
-            form: None,
-            metadata: None,
-        })
-    }
-}
-
 /// Wrapper for HostedSessionResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "hosted_url": "https://onboarding.noah.com/session_123",
-        "session_id": "session_123"
-    })
-)]
 pub struct HostedSessionResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -677,12 +730,6 @@ impl From<HostedSessionResponse> for HostedSessionResponseWrapper {
 /// Wrapper for PrefillDocumentUploadURLResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "upload_url": "https://upload.noah.com/document_123",
-        "document_id": "doc_123"
-    })
-)]
 pub struct PrefillDocumentUploadURLResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -698,61 +745,9 @@ impl From<PrefillDocumentUploadURLResponse> for PrefillDocumentUploadURLResponse
     }
 }
 
-/// Wrapper for PrepareSellRequest
-#[cfg(feature = "axum")]
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "channel_id": "channel_123",
-        "payment_method_id": "pm_123",
-        "crypto_currency": "USDC",
-        "customer_id": "customer_123",
-        "fiat_amount": "100.00",
-        "form": null,
-        "delayed_sell": null
-    })
-)]
-pub struct PrepareSellRequestWrapper {
-    #[serde(flatten)]
-    #[schema(value_type = Object)]
-    pub inner: serde_json::Value,
-}
-
-#[cfg(feature = "axum")]
-impl From<PrepareSellRequest> for PrepareSellRequestWrapper {
-    fn from(request: PrepareSellRequest) -> Self {
-        Self {
-            inner: serde_json::to_value(request).unwrap_or_default(),
-        }
-    }
-}
-
-#[cfg(feature = "axum")]
-impl From<PrepareSellRequestWrapper> for PrepareSellRequest {
-    fn from(wrapper: PrepareSellRequestWrapper) -> Self {
-        serde_json::from_value(wrapper.inner).unwrap_or_else(|_| PrepareSellRequest {
-            channel_id: String::new(),
-            payment_method_id: None,
-            crypto_currency: CryptoCurrencyCode::Usdc,
-            customer_id: None,
-            fiat_amount: String::new(),
-            form: None,
-            delayed_sell: None,
-        })
-    }
-}
-
 /// Wrapper for PrepareSellResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "form_session_id": "form_session_123",
-        "crypto_amount": "100.00",
-        "fiat_amount": "100.00",
-        "exchange_rate": "1.0"
-    })
-)]
 pub struct PrepareSellResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -768,63 +763,9 @@ impl From<PrepareSellResponse> for PrepareSellResponseWrapper {
     }
 }
 
-/// Wrapper for SellRequest
-#[cfg(feature = "axum")]
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "crypto_currency": "USDC",
-        "fiat_amount": "100.00",
-        "crypto_authorized_amount": "100.00",
-        "form_session_id": "form_session_123",
-        "nonce": "nonce_123",
-        "external_id": "ext_123"
-    })
-)]
-pub struct SellRequestWrapper {
-    #[serde(flatten)]
-    #[schema(value_type = Object)]
-    pub inner: serde_json::Value,
-}
-
-#[cfg(feature = "axum")]
-impl From<SellRequest> for SellRequestWrapper {
-    fn from(request: SellRequest) -> Self {
-        Self {
-            inner: serde_json::to_value(request).unwrap_or_default(),
-        }
-    }
-}
-
-#[cfg(feature = "axum")]
-impl From<SellRequestWrapper> for SellRequest {
-    fn from(wrapper: SellRequestWrapper) -> Self {
-        serde_json::from_value(wrapper.inner).unwrap_or_else(|_| SellRequest {
-            crypto_currency: CryptoCurrencyCode::Usdc,
-            fiat_amount: String::new(),
-            crypto_authorized_amount: String::new(),
-            form_session_id: String::new(),
-            nonce: String::new(),
-            external_id: None,
-        })
-    }
-}
-
 /// Wrapper for SellResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "transaction": {
-            "id": "txn_123",
-            "status": "pending",
-            "direction": "sell",
-            "crypto_currency": "USDC",
-            "fiat_amount": "100.00",
-            "crypto_amount": "100.00"
-        }
-    })
-)]
 pub struct SellResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -843,17 +784,6 @@ impl From<SellResponse> for SellResponseWrapper {
 /// Wrapper for Transaction
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "id": "txn_123",
-        "status": "completed",
-        "direction": "sell",
-        "crypto_currency": "USDC",
-        "fiat_amount": "100.00",
-        "crypto_amount": "100.00",
-        "created_at": "2024-01-01T00:00:00Z"
-    })
-)]
 pub struct TransactionWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -872,20 +802,6 @@ impl From<Transaction> for TransactionWrapper {
 /// Wrapper for GetTransactionsResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "items": [
-            {
-                "id": "txn_123",
-                "status": "completed",
-                "direction": "sell",
-                "crypto_currency": "USDC",
-                "fiat_amount": "100.00"
-            }
-        ],
-        "next_page_token": null
-    })
-)]
 pub struct GetTransactionsResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -904,19 +820,6 @@ impl From<GetTransactionsResponse> for GetTransactionsResponseWrapper {
 /// Wrapper for GetPaymentMethodsResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "items": [
-            {
-                "id": "pm_123",
-                "payment_method_category": "Bank",
-                "status": "active",
-                "fiat_currency": "USD"
-            }
-        ],
-        "next_page_token": null
-    })
-)]
 pub struct GetPaymentMethodsResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
@@ -932,62 +835,9 @@ impl From<GetPaymentMethodsResponse> for GetPaymentMethodsResponseWrapper {
     }
 }
 
-/// Wrapper for BankDepositToOnchainAddressRequest
-#[cfg(feature = "axum")]
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "customer_id": "customer_123",
-        "fiat_currency": "USD",
-        "crypto_currency": "USDC",
-        "network": "Ethereum",
-        "destination_address": {
-            "address": "0x1234567890abcdef1234567890abcdef12345678"
-        }
-    })
-)]
-pub struct BankDepositToOnchainAddressRequestWrapper {
-    #[serde(flatten)]
-    #[schema(value_type = Object)]
-    pub inner: serde_json::Value,
-}
-
-#[cfg(feature = "axum")]
-impl From<BankDepositToOnchainAddressRequest> for BankDepositToOnchainAddressRequestWrapper {
-    fn from(request: BankDepositToOnchainAddressRequest) -> Self {
-        Self {
-            inner: serde_json::to_value(request).unwrap_or_default(),
-        }
-    }
-}
-
-#[cfg(feature = "axum")]
-impl From<BankDepositToOnchainAddressRequestWrapper> for BankDepositToOnchainAddressRequest {
-    fn from(wrapper: BankDepositToOnchainAddressRequestWrapper) -> Self {
-        serde_json::from_value(wrapper.inner).unwrap_or_else(|_| {
-            BankDepositToOnchainAddressRequest {
-                customer_id: String::new(),
-                fiat_currency: String::new(),
-                crypto_currency: CryptoCurrencyCode::Usdc,
-                network: Network::Ethereum,
-                destination_address: DestinationAddress {
-                    address: String::new(),
-                },
-            }
-        })
-    }
-}
-
 /// Wrapper for BankDepositToOnchainAddressResponse
 #[cfg(feature = "axum")]
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[schema(
-    example = json!({
-        "payment_method_id": "pm_123",
-        "workflow_id": "workflow_123",
-        "status": "pending"
-    })
-)]
 pub struct BankDepositToOnchainAddressResponseWrapper {
     #[serde(flatten)]
     #[schema(value_type = Object)]
