@@ -1,38 +1,19 @@
 //! Basic client setup example
 
-use noah_sdk::{AuthConfig, Config, Environment, NoahClient};
+use noah_sdk::apis::configuration::{ApiKey, Configuration};
 
-#[cfg(feature = "async")]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create configuration for sandbox environment
-    let config = Config::new(Environment::Sandbox);
-
-    // Create authentication config with API key
-    let auth = AuthConfig::with_api_key("your-api-key-here".to_string());
-
-    // Create the client
-    let client = NoahClient::new(config, auth)?;
-
-    println!("Client created successfully!");
-    println!("Base URL: {}", client.base_url());
-
-    Ok(())
-}
-
-#[cfg(feature = "sync")]
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create configuration for sandbox environment
-    let config = Config::new(Environment::Sandbox);
-
-    // Create authentication config with API key
-    let auth = AuthConfig::with_api_key("your-api-key-here".to_string());
-
-    // Create the client
-    let client = NoahClient::new(config, auth)?;
+    let mut config = Configuration::default();
+    config.base_path = "https://api.sandbox.noah.com/v1".to_string();
+    config.api_key = Some(ApiKey {
+        prefix: None,
+        key: "your-api-key-here".to_string(),
+    });
 
     println!("Client created successfully!");
-    println!("Base URL: {}", client.base_url());
+    println!("Base URL: {}", config.base_path);
 
     Ok(())
 }

@@ -1,6 +1,6 @@
 //! Webhook signature verification example
 
-use noah_sdk::models::checkout::CheckoutSession;
+use noah_sdk::models::CheckoutSession;
 use serde_json::Value;
 
 /// Example webhook handler that verifies webhook signatures

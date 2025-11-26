@@ -1,41 +1,23 @@
 //! List balances example
 
-use noah_sdk::{AuthConfig, Config, Environment, NoahClient};
+use noah_sdk::apis::configuration::{ApiKey, Configuration};
+use noah_sdk::apis::utilities_api;
 
-#[cfg(feature = "async")]
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create configuration
-    let config = Config::new(Environment::Sandbox);
-    let auth = AuthConfig::with_api_key("your-api-key-here".to_string());
-    let client = NoahClient::new(config, auth)?;
+    let mut config = Configuration::default();
+    config.base_path = "https://api.sandbox.noah.com/v1".to_string();
+    config.api_key = Some(ApiKey {
+        prefix: None,
+        key: "your-api-key-here".to_string(),
+    });
 
-    println!("Base URL: {}", client.base_url());
+    println!("Base URL: {}", config.base_path);
     println!("Requesting balances...");
 
     // Get balances
-    let balances = client.get_balances(None, None).await?;
-
-    println!("Found {} balances:", balances.items.len());
-    for balance in balances.items {
-        println!(
-            "  {} {}: Available={}, Total={}",
-            balance.crypto_currency, balance.account_type, balance.available, balance.total
-        );
-    }
-
-    Ok(())
-}
-
-#[cfg(feature = "sync")]
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create configuration
-    let config = Config::new(Environment::Sandbox);
-    let auth = AuthConfig::with_api_key("your-api-key-here".to_string());
-    let client = NoahClient::new(config, auth)?;
-
-    // Get balances
-    let balances = client.get_balances_blocking(None, None)?;
+    let balances = utilities_api::balances_get(&config, None, None, None).await?;
 
     println!("Found {} balances:", balances.items.len());
     for balance in balances.items {
