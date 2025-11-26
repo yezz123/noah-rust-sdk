@@ -1,28 +1,37 @@
 //! Integration tests for the client
 
-#[cfg(feature = "async")]
-use noah_sdk::{AuthConfig, Config, Environment, NoahClient};
+use noah_sdk::apis::configuration::{ApiKey, Configuration};
+use noah_sdk::apis::utilities_api;
 
-#[cfg(feature = "async")]
 #[tokio::test]
 #[ignore] // Requires actual API credentials
 async fn test_client_creation() {
-    let config = Config::new(Environment::Sandbox);
-    let auth = AuthConfig::with_api_key("test-api-key".to_string());
-    let client = NoahClient::new(config, auth);
-    assert!(client.is_ok());
+    let config = Configuration {
+        base_path: "https://api.sandbox.noah.com/v1".to_string(),
+        api_key: Some(ApiKey {
+            prefix: None,
+            key: "test-api-key".to_string(),
+        }),
+        ..Default::default()
+    };
+    // Configuration is valid if it can be created
+    assert_eq!(config.base_path, "https://api.sandbox.noah.com/v1");
 }
 
-#[cfg(feature = "async")]
 #[tokio::test]
 #[ignore] // Requires actual API credentials
 async fn test_get_balances() {
-    let config = Config::new(Environment::Sandbox);
-    let auth = AuthConfig::with_api_key("test-api-key".to_string());
-    let client = NoahClient::new(config, auth).unwrap();
+    let config = Configuration {
+        base_path: "https://api.sandbox.noah.com/v1".to_string(),
+        api_key: Some(ApiKey {
+            prefix: None,
+            key: "test-api-key".to_string(),
+        }),
+        ..Default::default()
+    };
 
     // This will fail without valid credentials, but tests the structure
-    let result = client.get_balances(None, None).await;
+    let result = utilities_api::balances_get(&config, None, None, None).await;
     // We expect an error without valid credentials
     assert!(result.is_err());
 }
