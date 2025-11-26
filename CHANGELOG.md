@@ -1,5 +1,9 @@
 ## Changelog
 
+### Features
+
+* ✨ Refactor SDK structure by introducing new API and model modules. PR [#6](https://github.com/yezz123/noah-rust-sdk/pull/6) by [@yezz123](https://github.com/yezz123).
+
 ## 1.0.4
 
 ### Features
