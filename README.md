@@ -16,8 +16,8 @@ A modern, type-safe Rust SDK for the [Noah Business API](https://noah.com).
 
 ## Features
 
-- ✅ **Async and Sync Support**: Use async/await or blocking operations via feature flags
 - ✅ **Type Safety**: Strongly typed models generated from OpenAPI schema
+- ✅ **Async Support**: Built on async/await with `reqwest`
 - ✅ **Dual Authentication**: Support for both JWT signing (`Api-Signature`) and API key (`X-Api-Key`) authentication
 - ✅ **Comprehensive Error Handling**: Detailed error types with context
 - ✅ **Production Ready**: Well-tested and documented
@@ -28,53 +28,36 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-noah-sdk = { version = "0.1.0", features = ["async"] }
+noah-sdk = { version = "1.0", features = ["rustls-tls"] }
 ```
 
-For blocking/sync operations:
+For native TLS:
 
 ```toml
 [dependencies]
-noah-sdk = { version = "0.1.0", features = ["sync"] }
+noah-sdk = { version = "1.0", features = ["native-tls"] }
 ```
 
 ## Quick Start
 
-### Async Example
+### Basic Example
 
 ```rust
-use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
+use noah_sdk::apis::configuration::{ApiKey, Configuration};
+use noah_sdk::apis::utilities_api;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create configuration for sandbox environment
-    let config = Config::new(Environment::Sandbox);
-
-    // Create authentication config with API key
-    let auth = AuthConfig::with_api_key("your-api-key-here".to_string());
-
-    // Create the client
-    let client = NoahClient::new(config, auth)?;
+    let mut config = Configuration::default();
+    config.base_path = "https://api.sandbox.noah.com/v1".to_string();
+    config.api_key = Some(ApiKey {
+        prefix: None,
+        key: "your-api-key-here".to_string(),
+    });
 
     // Get balances
-    let balances = client.get_balances(None, None).await?;
-    println!("Found {} balances", balances.items.len());
-
-    Ok(())
-}
-```
-
-### Sync Example
-
-```rust
-use noah_sdk::{NoahClient, Config, Environment, AuthConfig};
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let config = Config::new(Environment::Sandbox);
-    let auth = AuthConfig::with_api_key("your-api-key-here".to_string());
-    let client = NoahClient::new(config, auth)?;
-
-    let balances = client.get_balances_blocking(None, None)?;
+    let balances = utilities_api::balances_get(&config, None, None, None).await?;
     println!("Found {} balances", balances.items.len());
 
     Ok(())
@@ -88,23 +71,26 @@ The SDK supports two authentication methods:
 ### API Key Authentication
 
 ```rust
-let auth = AuthConfig::with_api_key("your-api-key".to_string());
+use noah_sdk::apis::configuration::{ApiKey, Configuration};
+
+let mut config = Configuration::default();
+config.api_key = Some(ApiKey {
+    prefix: None,
+    key: "your-api-key".to_string(),
+});
 ```
 
 ### JWT Signature Authentication
 
 ```rust
-let auth = AuthConfig::with_secret_key("your-secret-key".to_string());
+let mut config = Configuration::default();
+config.bearer_access_token = Some("your-jwt-token".to_string());
+// Or pass api_signature parameter to API calls
 ```
 
 ### Both Methods
 
-```rust
-let auth = AuthConfig::with_both(
-    "your-api-key".to_string(),
-    "your-secret-key".to_string()
-);
-```
+You can use both by setting both `api_key` and passing `api_signature` to individual API calls.
 
 ## Examples
 
@@ -120,34 +106,36 @@ See the [examples](examples/) directory for more detailed examples:
 Run an example:
 
 ```bash
-cargo run --example basic_client --features async
+cargo run --example basic_client
 ```
 
 ## API Coverage
 
 The SDK provides typed methods for all major Noah API endpoints:
 
-- **Balances**: Get account balances
-- **Channels**: List and get channel information
-- **Customers**: Create, update, and retrieve customers
-- **Transactions**: Prepare and execute sell transactions
-- **Checkout**: Create payin and payout checkout sessions
-- **Onboarding**: Create onboarding sessions and prefill customer data
-- **Payment Methods**: List customer payment methods
-- **Workflows**: Create automated workflows
+- **Balances**: Get account balances (`utilities_api::balances_get`)
+- **Channels**: List and get channel information (`utilities_api::channels_sell_get`, `utilities_api::channels_channel_id_get`)
+- **Customers**: Create, update, and retrieve customers (`onboarding_api::customers_customer_id_put`, `utilities_api::customers_customer_id_get`)
+- **Transactions**: Prepare and execute sell transactions (`payout_api::transactions_sell_prepare_post`, `payout_api::transactions_sell_post`)
+- **Checkout**: Create payin and payout checkout sessions (`payin_api::checkout_payin_crypto_post`, `payout_api::checkout_payout_fiat_post`)
+- **Onboarding**: Create onboarding sessions and prefill customer data (`onboarding_api::onboarding_customer_id_post`)
+- **Payment Methods**: List customer payment methods (`utilities_api::payment_methods_get`)
+- **Workflows**: Create automated workflows (`payin_api::workflows_bank_deposit_to_onchain_address_post`)
 
 ## Error Handling
 
-The SDK uses a comprehensive error type system:
+The SDK uses comprehensive error types for each API endpoint:
 
 ```rust
-use noah_sdk::error::NoahError;
+use noah_sdk::apis::utilities_api;
 
-match client.get_balances(None, None).await {
+match utilities_api::balances_get(&config, None, None, None).await {
     Ok(balances) => println!("Success: {:?}", balances),
-    Err(NoahError::ApiError(err)) => println!("API error: {}", err),
-    Err(NoahError::HttpError(err)) => println!("HTTP error: {}", err),
-    Err(NoahError::AuthError(msg)) => println!("Auth error: {}", msg),
+    Err(noah_sdk::apis::Error::ResponseError(err)) => {
+        println!("API error: status={}, content={}", err.status, err.content);
+    }
+    Err(noah_sdk::apis::Error::Reqwest(err)) => println!("HTTP error: {}", err),
+    Err(noah_sdk::apis::Error::Serde(err)) => println!("Serialization error: {}", err),
     Err(e) => println!("Other error: {}", e),
 }
 ```
@@ -157,42 +145,38 @@ match client.get_balances(None, None).await {
 ### Environment Selection
 
 ```rust
+use noah_sdk::apis::configuration::Configuration;
+
 // Sandbox (default)
-let config = Config::new(Environment::Sandbox);
+let mut config = Configuration::default();
+config.base_path = "https://api.sandbox.noah.com/v1".to_string();
 
 // Production
-let config = Config::new(Environment::Production);
+let mut config = Configuration::default();
+config.base_path = "https://api.noah.com/v1".to_string();
 
 // Custom URL
-let config = Config::new(Environment::Custom(
-    url::Url::parse("https://api.custom.com/v1")?
-));
+let mut config = Configuration::default();
+config.base_path = "https://api.custom.com/v1".to_string();
 ```
 
 ### Custom Configuration
 
 ```rust
-let config = Config::new(Environment::Sandbox)
-    .with_timeout(60)  // 60 second timeout
-    .with_user_agent("my-app/1.0".to_string())
-    .with_logging(true);
+let mut config = Configuration::default();
+config.base_path = "https://api.sandbox.noah.com/v1".to_string();
+config.user_agent = Some("my-app/1.0".to_string());
+config.api_key = Some(ApiKey {
+    prefix: None,
+    key: "your-api-key".to_string(),
+});
 ```
 
 ## Features
 
-- `default`: Enables async support with rustls-tls
-- `async`: Async/await support (requires tokio)
-- `sync`: Blocking/synchronous operations
-- `rustls-tls`: Use rustls for TLS (default)
-- `native-tls`: Use native TLS implementation
-- `json`: JSON serialization support (enabled by default)
-
-## Documentation
-
-- [Getting Started](docs/getting-started.md)
-- [Authentication](docs/authentication.md)
-- [Error Handling](docs/error-handling.md)
-- [Examples](docs/examples.md)
+- `default`: Enables native-tls
+- `rustls-tls`: Use rustls for TLS
+- `native-tls`: Use native TLS implementation (default)
 
 ## License
 
