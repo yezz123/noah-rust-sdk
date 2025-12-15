@@ -24,7 +24,7 @@ serde = { version = "^1.0", features = ["derive"] }
 serde_json = "^1.0"
 serde_repr = "^0.1"
 url = "^2.5"
-uuid = { version = "^1.8", features = ["serde", "v4"] }
+uuid = { version = "^1.19", features = ["serde", "v4"] }
 
 [features]
 default = ["native-tls"]
@@ -34,7 +34,7 @@ rustls-tls = ["reqwest/rustls-tls"]
 [dev-dependencies]
 tokio = { version = "1.0", features = ["rt-multi-thread", "macros"] }
 tokio-test = "0.4"
-mockito = "1.2"
+mockito = "1.7"
 serde_test = "1.0"
 
 [lib]
